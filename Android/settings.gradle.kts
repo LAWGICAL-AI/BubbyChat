@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BuddyTalk"
+rootProject.name = "BubbyChat"
 include(":app")
  
