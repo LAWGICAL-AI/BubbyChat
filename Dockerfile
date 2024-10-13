@@ -49,4 +49,4 @@ EXPOSE 5000
 
 # Run the application.
 # CMD uvicorn 'Backend.main:app' --host=0.0.0.0 --port=5000
-CMD ["uvicorn", "Backend.main:app", "--host", "0.0.0.0", "--port", "5000", "--reload"]
+CMD ["uvicorn", "Backend.app.main:app", "--host", "0.0.0.0", "--port", "5000", "--reload"]

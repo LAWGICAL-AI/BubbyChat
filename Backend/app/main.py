@@ -1,4 +1,4 @@
-# main.py
+# app/main.py
 from fastapi import FastAPI
 
 app = FastAPI()
@@ -9,4 +9,4 @@ def read_root():
 
 @app.get("/test")
 def testing():
-    return {"testing FastAPI!"}
+    return {55}
