@@ -3,11 +3,11 @@ name: CI/CD for backend
 on:
   push:
     paths:
-      - "backend/**"
+      - "Backend/**"
     branches: [ "develop" ]
   pull_request:
     paths:
-      - "backend/**"
+      - "Backend/**"
     branches: [ "develop" ]
 
 jobs:
