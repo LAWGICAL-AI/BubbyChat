@@ -20,7 +20,7 @@ jobs:
 
     # Step 2: Build Docker image for FastAPI backend
     - name: Build Docker image
-      working-directory: ./backend
+      working-directory: ./Backend
       run: |
         docker build -t fastapi-backend:${{ github.sha }} .
 
@@ -33,7 +33,7 @@ jobs:
     
     # Step 4: Deploy the FastAPI app
     - name: Deploy FastAPI app
-      working-directory: ./backend
+      working-directory: ./Backend
       run: |
         docker-compose down
         docker-compose up -d --build
