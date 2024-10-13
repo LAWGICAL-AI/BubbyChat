@@ -10,3 +10,7 @@ def read_root():
 @app.get("/test")
 def testing():
     return {55}
+
+@app.get("/inference")
+def testing():
+    return {"return":"inference test"}
