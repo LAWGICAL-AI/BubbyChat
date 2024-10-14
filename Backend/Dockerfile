@@ -38,7 +38,7 @@ RUN adduser \
 # Log before copying requirements
 
 # Copy the requirements.txt file into the /Backend directory in the container
-COPY Backend/requirements.txt /Backend/requirements.txt
+COPY requirements.txt /Backend/requirements.txt
 
 # Install dependencies from the correct path (/Backend/requirements.txt)
 RUN python -m pip install --no-cache-dir -r /Backend/requirements.txt || (echo "Failed to install dependencies" && exit 1)
