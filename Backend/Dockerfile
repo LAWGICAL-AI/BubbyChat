@@ -16,6 +16,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
 
+# workdir at server is Backend too
 WORKDIR /Backend
 
 # Create a non-privileged user that the app will run under.
@@ -34,9 +35,13 @@ RUN adduser \
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
 # into this layer.
-RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+# Log before copying requirements
+
+# Copy the requirements.txt file into the /Backend directory in the container
+COPY Backend/requirements.txt /Backend/requirements.txt
+
+# Install dependencies from the correct path (/Backend/requirements.txt)
+RUN python -m pip install --no-cache-dir -r /Backend/requirements.txt || (echo "Failed to install dependencies" && exit 1)
 
 # Switch to the non-privileged user to run the application.
 USER appuser
