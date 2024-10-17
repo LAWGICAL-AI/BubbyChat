@@ -22,12 +22,12 @@ jobs:
     - name: Build Docker image
       working-directory: ./Backend
       run: |
-        DOCKER_BUILDKIT=1 sudo docker build -t fastapi-backend:${{ github.sha }} .
+        DOCKER_BUILDKIT=1 docker build -t fastapi-backend:${{ github.sha }} .
 
     # Step 3: Run the tests inside Docker
     - name: Run Tests in Docker
       run: |
-        sudo docker run --rm fastapi-backend:${{ github.sha }} pytest
+        docker run --rm fastapi-backend:${{ github.sha }} pytest
     
     # test code will be here
     
@@ -35,10 +35,10 @@ jobs:
     - name: Deploy FastAPI app
       working-directory: ./Backend
       run: |
-        sudo docker-compose down
-        sudo docker-compose up -d --build
+        docker-compose down
+        docker-compose up -d --build
 
     # Step 5: Clean up old images
     - name: Clean up
       run: |
-        sudo docker image prune -f
+        docker image prune -f
