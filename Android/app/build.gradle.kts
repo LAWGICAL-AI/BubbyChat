@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.lawgicalai.bubbytalk"
+    namespace = "com.lawgicalai.bubbychat"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.lawgicalai.bubbytalk"
+        applicationId = "com.lawgicalai.bubbychat"
         minSdk = 28
         targetSdk = 34
         versionCode = 1
