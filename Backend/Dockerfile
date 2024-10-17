@@ -22,14 +22,14 @@ WORKDIR /Backend
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
 ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    appuser
+# RUN adduser \
+#     --disabled-password \
+#     --gecos "" \
+#     --home "/nonexistent" \
+#     --shell "/sbin/nologin" \
+#     --no-create-home \
+#     --uid "${UID}" \
+#     appuser
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
@@ -44,7 +44,7 @@ COPY requirements.txt /Backend/requirements.txt
 RUN python -m pip install --no-cache-dir -r /Backend/requirements.txt || (echo "Failed to install dependencies" && exit 1)
 
 # Switch to the non-privileged user to run the application.
-USER appuser
+# USER appuser
 
 # Copy the source code into the container.
 COPY . ./
