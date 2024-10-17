@@ -1,4 +1,4 @@
-package com.lawgicalai.buddytalk.ui.theme
+package com.lawgicalai.bubbychat.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

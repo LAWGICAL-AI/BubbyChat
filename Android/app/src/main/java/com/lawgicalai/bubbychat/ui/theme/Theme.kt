@@ -1,6 +1,5 @@
-package com.lawgicalai.buddytalk.ui.theme
+package com.lawgicalai.bubbychat.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

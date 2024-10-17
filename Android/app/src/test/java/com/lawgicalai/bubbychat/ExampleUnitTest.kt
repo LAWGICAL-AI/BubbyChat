@@ -1,4 +1,4 @@
-package com.lawgicalai.buddytalk
+package com.lawgicalai.bubbychat
 
 import org.junit.Test
 
