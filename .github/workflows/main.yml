@@ -4,11 +4,11 @@ on:
   push:
     paths:
       - "Backend/**"
-    branches: [ "develop" ]
+    branches: [ "feature/backend/cd" ]
   pull_request:
     paths:
       - "Backend/**"
-    branches: [ "develop" ]
+    branches: [ "feature/backend/cd" ]
 
 jobs:
   CI-CD:
