@@ -22,7 +22,7 @@ jobs:
     - name: Build Docker image
       working-directory: ./Backend
       run: |
-        DOCKER_BUILDKIT=1 sudo docker build -t fastapi-backend:${{ github.sha }} .
+        DOCKER_BUILDKIT=1 sudo -S docker build -t fastapi-backend:${{ github.sha }} .
 
     # Step 3: Run the tests inside Docker
     - name: Run Tests in Docker
