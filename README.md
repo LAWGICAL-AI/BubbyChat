@@ -1,4 +1,4 @@
-# BuddyTalk
+# BubbyChat
 
 ---
 

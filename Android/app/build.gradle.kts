@@ -66,4 +66,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    // Orbit
+    implementation(libs.orbit.core)
+    implementation(libs.orbit.viewmodel)
+    implementation(libs.orbit.compose)
+    testImplementation(libs.orbit.test)
 }
