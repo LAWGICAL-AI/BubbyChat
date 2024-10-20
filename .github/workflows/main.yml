@@ -15,44 +15,52 @@ jobs:
     runs-on: self-hosted
     env:
       working-directory: ./Backend
-      venv-path: /home/user/env/envs/back_test
+      conda-env-name: back_test
     steps:
     # Step 1: Check out the code from GitHub
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # Step 2: Debug environment and activate venv
-    - name: Debug and activate venv
+    # Step 2: Debug environment
+    - name: Debug environment
       run: |
         echo "Current working directory:"
         pwd
         
-        echo "Listing contents of the working directory:"
+        echo "Listing contents of the current directory:"
         ls -la
         
-        echo "Listing contents of the supposed venv directory:"
-        ls -la ${{ env.venv-path }}
+        echo "Checking for Conda:"
+        which conda || echo "Conda not found"
+        conda --version || echo "Conda version check failed"
         
-        echo "Checking if the environment directory exists:"
-        if [ -d "${{ env.venv-path }}" ]; then
-          echo "Directory exists!"
-          if [ -f "${{ env.venv-path }}/bin/activate" ]; then
-            echo "Activation script found!"
-            source ${{ env.venv-path }}/bin/activate
-            echo "Virtual environment activated. Python path:"
-            which python
-            pip install -r requirements.txt
-          else
-            echo "Activation script not found!"
-          fi
-        else
-          echo "Directory does NOT exist!"
-        fi
+        echo "Listing Conda environments:"
+        conda env list || echo "Failed to list Conda environments"
+        
+        echo "Checking for specific Conda environment:"
+        conda env list | grep ${{ env.conda-env-name }} || echo "Conda environment ${{ env.conda-env-name }} not found"
       working-directory: ${{ env.working-directory }}
 
-    # Step 3: Run test
+    # Step 3: Set up Conda environment
+    - name: Set up Conda environment
+      run: |
+        eval "$(conda shell.bash hook)"
+        if ! conda activate ${{ env.conda-env-name }}; then
+          echo "Conda environment ${{ env.conda-env-name }} not found. Creating it..."
+          conda create -n ${{ env.conda-env-name }} python=3.8 -y
+          conda activate ${{ env.conda-env-name }}
+        fi
+        echo "Conda environment activated. Python path:"
+        which python
+        python --version
+        pip install -r requirements.txt
+      working-directory: ${{ env.working-directory }}
+
+    # Step 4: Run test
     - name: Run Tests
       run: |
-        source ${{ env.venv-path }}/bin/activate
-        python -m pytest tests/test_workflow.py
+        eval "$(conda shell.bash hook)"
+        conda activate ${{ env.conda-env-name }}
+        pip list
+        python -m pytest tests/test_worklow.py
       working-directory: ${{ env.working-directory }}
