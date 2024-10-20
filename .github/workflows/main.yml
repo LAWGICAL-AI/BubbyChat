@@ -12,33 +12,24 @@ on:
 
 jobs:
   CI-CD:
-    runs-on: self-hosted 
+    runs-on: self-hosted
+    env:
+      working-directory: ./Backend
     steps:
     # Step 1: Check out the code from GitHub
     - name: Checkout Code
       uses: actions/checkout@v3
 
     # Step 2: Build Docker image for FastAPI backend
-    - name: Build Docker image
-      working-directory: ./Backend
+    - name: activate venv and install dependencies
       run: |
-        DOCKER_BUILDKIT=1 docker build -t fastapi-backend:${{ github.sha }} .
+        source env/envs/back_test/bin/activate
+        pip install -r requirements.txt
+      working-directory: "${{ env.working-directory }}"
 
-    # Step 3: Run the tests inside Docker
-    - name: Run Tests in Docker
+    # Step 3: Run test
+    - name: Run Tests
       run: |
-        docker run --rm fastapi-backend:${{ github.sha }} pytest
-    
-    # test code will be here
-    
-    # Step 4: Deploy the FastAPI app
-    - name: Deploy FastAPI app
-      working-directory: ./Backend
-      run: |
-        docker-compose down
-        docker-compose up -d --build
-
-    # Step 5: Clean up old images
-    - name: Clean up
-      run: |
-        docker image prune -f
+        source env/envs/back_test/bin/activate
+        pytest
+      working-directory: "${{ env.working-directory }}"
