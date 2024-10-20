@@ -23,8 +23,18 @@ jobs:
     # Step 2: Build Docker image for FastAPI backend
     - name: activate venv and install dependencies
       run: |
+        echo "Listing contents of the working directory:"
+        ls -la "${{ env.working-directory }}/env/envs/"
+        echo "Checking if the environment directory exists:"
+        if [ -d "${{ env.working-directory }}/env/envs/back_test" ]; then
+          echo "Directory exists!"
+        else
+          echo "Directory does NOT exist!"
+        
         source env/envs/back_test/bin/activate
         pip install -r requirements.txt
+        
+        fi
       working-directory: "${{ env.working-directory }}"
 
     # Step 3: Run test
