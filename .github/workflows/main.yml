@@ -54,6 +54,5 @@ jobs:
     - name: Run Tests
       run: |
         source ${{ env.venv-path }}/bin/activate
-        which python
-        pytest
+        python -m pytest tests/test_worklow.py
       working-directory: ${{ env.working-directory }}
