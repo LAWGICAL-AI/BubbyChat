@@ -24,14 +24,14 @@ jobs:
     - name: activate venv and install dependencies
       run: |
         echo "Listing contents of the working directory:"
-        ls -la "${{ env.working-directory }}/env/envs/"
+        ls -la "./env/envs/"
         echo "Checking if the environment directory exists:"
-        if [ -d "${{ env.working-directory }}/env/envs/back_test" ]; then
+        if [ -d "./env/envs/back_test" ]; then
           echo "Directory exists!"
         else
           echo "Directory does NOT exist!"
         
-        source env/envs/back_test/bin/activate
+        source ./env/envs/back_test/bin/activate
         pip install -r requirements.txt
         
         fi
@@ -40,6 +40,6 @@ jobs:
     # Step 3: Run test
     - name: Run Tests
       run: |
-        source env/envs/back_test/bin/activate
+        source ./env/envs/back_test/bin/activate
         pytest
       working-directory: "${{ env.working-directory }}"
