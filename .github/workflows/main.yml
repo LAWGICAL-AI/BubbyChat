@@ -15,34 +15,45 @@ jobs:
     runs-on: self-hosted
     env:
       working-directory: ./Backend
+      venv-path: /home/user/env/envs/back_test
     steps:
     # Step 1: Check out the code from GitHub
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # Step 2: Build Docker image for FastAPI backend
-    - name: activate venv and install dependencies
+    # Step 2: Debug environment and activate venv
+    - name: Debug and activate venv
       run: |
         echo "Current working directory:"
         pwd
         
         echo "Listing contents of the working directory:"
-        ls -la "/home/user/env/envs/"
+        ls -la
+        
+        echo "Listing contents of the supposed venv directory:"
+        ls -la ${{ env.venv-path }}
+        
         echo "Checking if the environment directory exists:"
-        if [ -d "./env/envs/back_test" ]; then
+        if [ -d "${{ env.venv-path }}" ]; then
           echo "Directory exists!"
+          if [ -f "${{ env.venv-path }}/bin/activate" ]; then
+            echo "Activation script found!"
+            source ${{ env.venv-path }}/bin/activate
+            echo "Virtual environment activated. Python path:"
+            which python
+            pip install -r requirements.txt
+          else
+            echo "Activation script not found!"
+          fi
         else
           echo "Directory does NOT exist!"
-        
-        source /home/user/env/envs/back_test/bin/activate
-        pip install -r requirements.txt
-        
         fi
-      working-directory: "${{ env.working-directory }}"
+      working-directory: ${{ env.working-directory }}
 
     # Step 3: Run test
     - name: Run Tests
       run: |
-        source /home/user/env/envs/back_test/bin/activate
+        source ${{ env.venv-path }}/bin/activate
+        which python
         pytest
-      working-directory: "${{ env.working-directory }}"
+      working-directory: ${{ env.working-directory }}
