@@ -20,4 +20,9 @@ def test_read_root():
 def test_testing():
     response = client.get("/test")
     assert response.status_code == 200
-    assert response.json() == [55]
+    assert response.json() == {"value": 55}
+
+def test_inference():
+    response = client.get("/inference")
+    assert response.status_code == 200
+    assert response.json() == {"return": "inference test"}
