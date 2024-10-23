@@ -5,7 +5,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.lawgicalai.bubbychat.R
 
-// font는 Type에 있다(굳이 Type이 아니어도 되긴함)
 val pretendardFontFamily: FontFamily = FontFamily(Font(R.font.ptd_regular))
 
 val defaultTypography = Typography()
