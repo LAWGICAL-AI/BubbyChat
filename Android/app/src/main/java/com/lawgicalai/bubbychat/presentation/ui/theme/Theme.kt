@@ -1,4 +1,4 @@
-package com.lawgicalai.bubbychat.ui.theme
+package com.lawgicalai.bubbychat.presentation.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

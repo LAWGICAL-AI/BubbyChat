@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
-import com.lawgicalai.bubbychat.ui.theme.BubbyChatTheme
-import com.lawgicalai.bubbychat.ui.theme.Orange
+import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
+import com.lawgicalai.bubbychat.presentation.ui.theme.Orange
 
 @Composable
 fun MainBottomBar(
