@@ -23,3 +23,11 @@ def testing():
 @app.get("/inference")
 def inference():
     return {"return": "inference test"}
+
+@app.get("/connection")
+def inference():
+    return {"return": "yes yes it did worked"}
+
+@app.get("/new")
+def inference():
+    return {"return": "test to check ci/cd"}

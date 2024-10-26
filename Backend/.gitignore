@@ -28,6 +28,12 @@ __pycache__/
 # C extensions
 *.so
 
+# security
+*.pem
+*.key
+*.crt
+.ssh/
+
 # Distribution / packaging
 .Python
 build/

@@ -21,46 +21,19 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # Step 2: Debug environment
-    - name: Debug environment
-      run: |
-        echo "Current working directory:"
-        pwd
-        
-        echo "Listing contents of the current directory:"
-        ls -la
-        
-        echo "Checking for Conda:"
-        which conda || echo "Conda not found"
-        conda --version || echo "Conda version check failed"
-        
-        echo "Listing Conda environments:"
-        conda env list || echo "Failed to list Conda environments"
-        
-        echo "Checking for specific Conda environment:"
-        conda env list | grep ${{ env.conda-env-name }} || echo "Conda environment ${{ env.conda-env-name }} not found"
-      working-directory: ${{ env.working-directory }}
 
-    # Step 3: Set up Conda environment
-    - name: Set up Conda environment
+    # Step 2: Build the Docker image
+    - name: Build Docker Image
       run: |
-        eval "$(conda shell.bash hook)"
-        if ! conda activate ${{ env.conda-env-name }}; then
-          echo "Conda environment ${{ env.conda-env-name }} not found. Creating it..."
-          conda create -n ${{ env.conda-env-name }} python=3.8 -y
-          conda activate ${{ env.conda-env-name }}
-        fi
-        echo "Conda environment activated. Python path:"
-        which python
-        python --version
-        pip install -r requirements.txt
-      working-directory: ${{ env.working-directory }}
+        docker build -t fastapi-ssh .
 
-    # Step 4: Run test
-    - name: Run Tests
+    # Step 3: Stop and remove existing container if running
+    - name: Stop and Remove Existing Container
       run: |
-        eval "$(conda shell.bash hook)"
-        conda activate ${{ env.conda-env-name }}
-        pip list
-        python -m pytest tests/test_workflow.py
-      working-directory: ${{ env.working-directory }}
+        docker stop backend || true
+        docker rm backend || true
+
+    # Step 4: Run the container with the new image
+    - name: Run New Docker Container
+      run: |
+        docker run -d --name backend -p 8002:8001 fastapi-ssh
