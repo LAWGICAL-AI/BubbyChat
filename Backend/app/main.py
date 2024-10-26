@@ -30,4 +30,4 @@ def inference():
 
 @app.get("/new")
 def inference():
-    return {"return": "test to check ci/cd"}
+    return {"return": "test to check ci"}
