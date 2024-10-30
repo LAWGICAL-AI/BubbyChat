@@ -1,4 +1,4 @@
-package com.lawgicalai.bubbychat.presentation.main
+package com.lawgicalai.bubbychat.presentation.navigation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -11,16 +11,20 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.lawgicalai.bubbychat.R
+import com.lawgicalai.bubbychat.presentation.chat.ChatScreen
+import com.lawgicalai.bubbychat.presentation.main.MainViewModel
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable // NavHost도 Composable
 fun MainNavHost() {
     val navController = rememberNavController()
+    val viewModel: MainViewModel = viewModel()
     Surface {
         Scaffold(
             topBar = {
@@ -43,6 +47,9 @@ fun MainNavHost() {
                     }
                     composable(route = MainRoute.SETTING.route) {
 //                        SettingScreen()
+                    }
+                    composable(route = MainRoute.CHAT.route) {
+                        ChatScreen(viewModel = viewModel)
                     }
                 }
             },

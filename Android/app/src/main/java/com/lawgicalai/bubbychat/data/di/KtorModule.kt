@@ -1,6 +1,8 @@
 package com.lawgicalai.bubbychat.data.di
 
 import android.util.Log
+import com.lawgicalai.bubbychat.data.network.ChatService
+import com.lawgicalai.bubbychat.data.network.UserService
 import com.lawgicalai.bubbychat.domain.usecase.GetTokenUseCase
 import dagger.Module
 import dagger.Provides
@@ -27,12 +29,14 @@ import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
 private const val TAG = "KtorModule"
+
 @Module
 @InstallIn(SingletonComponent::class)
 object KtorModule {
-    val BASE_URL = "10.0.2.2:8080/api" // localhost - emulator
+    val BASE_URL = "10.0.2.2:8080" // localhost - emulator
+
     //    val BASE_URL = "192.168.0.21:8080/api" // localhost - 집
-    private const val NETWORK_TIME_OUT = 6_000L // 6초
+    private const val NETWORK_TIME_OUT = 60_000L // 10초
 
     @Provides
     @Singleton
@@ -72,18 +76,20 @@ object KtorModule {
 
         install(DefaultRequest) {
             header(HttpHeaders.ContentType, ContentType.Application.Json)
+            header(HttpHeaders.ContentType, ContentType.Text.EventStream)
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
+            accept(ContentType.Text.EventStream)
             host = BASE_URL
         }
 
         // AccessTokenInterceptor 추가
-       defaultRequest {
-            val token = runBlocking { getTokenUseCase() }
-            Log.d(TAG, "provideKtorClient: $token")
-            token?.let {
-                headers[HttpHeaders.Authorization] = "Bearer $it" // Bearer token
-            }
-        }
+//       defaultRequest {
+//            val token = runBlocking { getTokenUseCase() }
+//            Log.d(TAG, "provideKtorClient: $token")
+//            token?.let {
+//                headers[HttpHeaders.Authorization] = "Bearer $it" // Bearer token
+//            }
+//        }
     }
 }
