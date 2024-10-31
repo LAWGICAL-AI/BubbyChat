@@ -36,7 +36,7 @@ object KtorModule {
     val BASE_URL = "10.0.2.2:8080" // localhost - emulator
 
     //    val BASE_URL = "192.168.0.21:8080/api" // localhost - 집
-    private const val NETWORK_TIME_OUT = 60_000L // 10초
+    private const val NETWORK_TIME_OUT = 600_000L // 10초
 
     @Provides
     @Singleton

@@ -11,6 +11,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readUTF8Line
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -33,6 +34,7 @@ class ChatService @Inject constructor(
                     val dataContent = chunk.removePrefix("data:").trim() // "data:" 제거 후 공백 제거
                     Log.d(TAG, "startStreaming: Received data - $dataContent")
                     emit(dataContent)
+                    delay(50)
                 }
             }
 

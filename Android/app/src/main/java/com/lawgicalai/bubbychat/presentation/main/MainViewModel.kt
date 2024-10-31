@@ -39,7 +39,7 @@ class MainViewModel @Inject constructor(
         getChatResponseStreamUseCase(question).onSuccess { flow ->
             flow.onEach { response ->
                 Log.d(TAG, "getResponse: $response")
-                reduce { state.copy(response = state.response + response) }
+                reduce { state.copy(response = state.response +" "+ response) }
             }.launchIn(viewModelScope)
         }.onFailure { e ->
             Log.d(TAG, "getResponse: $e")

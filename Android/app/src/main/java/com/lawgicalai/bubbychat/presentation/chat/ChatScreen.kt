@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lawgicalai.bubbychat.presentation.main.MainSideEffect
 import com.lawgicalai.bubbychat.presentation.main.MainViewModel
-import com.lawgicalai.bubbychat.ui.theme.BubbyChatTheme
+import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -56,9 +56,9 @@ private fun ChatScreen(
             .verticalScroll(scrollState)) {
             Button(
                 onClick = {
-//                    onSendQuestion("How to put an elephant into refrigerator")
+                    onSendQuestion("How to put an elephant into refrigerator")
 //                    onSendQuestion("코끼리 잡는법")
-                    onSendQuestion("how to get money")
+//                    onSendQuestion("how to get money")
                 }
             ) {
                 Text("Send")
