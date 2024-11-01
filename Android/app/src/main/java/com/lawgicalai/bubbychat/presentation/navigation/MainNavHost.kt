@@ -17,14 +17,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.presentation.chat.ChatScreen
-import com.lawgicalai.bubbychat.presentation.main.MainViewModel
+import com.lawgicalai.bubbychat.presentation.chat.ChatViewModel
+import com.lawgicalai.bubbychat.presentation.chat.MainViewModel
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable // NavHost도 Composable
 fun MainNavHost() {
     val navController = rememberNavController()
-    val viewModel: MainViewModel = viewModel()
     Surface {
         Scaffold(
             topBar = {
@@ -49,7 +49,7 @@ fun MainNavHost() {
 //                        SettingScreen()
                     }
                     composable(route = MainRoute.CHAT.route) {
-                        ChatScreen(viewModel = viewModel)
+                        ChatScreen()
                     }
                 }
             },

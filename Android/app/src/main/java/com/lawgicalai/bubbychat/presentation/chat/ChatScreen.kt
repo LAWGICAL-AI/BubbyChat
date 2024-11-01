@@ -1,8 +1,6 @@
 package com.lawgicalai.bubbychat.presentation.chat
 
-import android.widget.Space
 import android.widget.Toast
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,13 +13,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.lawgicalai.bubbychat.presentation.main.MainSideEffect
-import com.lawgicalai.bubbychat.presentation.main.MainViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -29,13 +25,13 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 fun ChatScreen(
-    viewModel: MainViewModel
+    viewModel: ChatViewModel = hiltViewModel()
 ) {
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
     viewModel.collectSideEffect {
         when (it) {
-            is MainSideEffect.Toast -> {
+            is ChatSideEffect.Toast -> {
                 Toast.makeText(context, it.massage, Toast.LENGTH_SHORT).show()
             }
         }

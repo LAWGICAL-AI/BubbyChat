@@ -100,4 +100,16 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.datastore)
 
+    // retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.retrofit.converter.sclars)
+    implementation(libs.retrofit.converter.kotlinxSerialization)
+
+    implementation(libs.timber)
+
+
 }
