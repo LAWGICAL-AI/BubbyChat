@@ -111,5 +111,5 @@ dependencies {
 
     implementation(libs.timber)
 
-
+    implementation(libs.androidx.core.splashscreen)
 }

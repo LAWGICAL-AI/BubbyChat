@@ -11,18 +11,15 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.presentation.chat.ChatScreen
-import com.lawgicalai.bubbychat.presentation.chat.ChatViewModel
-import com.lawgicalai.bubbychat.presentation.chat.MainViewModel
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable // NavHost도 Composable
+@Composable
 fun MainNavHost() {
     val navController = rememberNavController()
     Surface {

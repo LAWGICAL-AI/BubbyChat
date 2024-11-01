@@ -41,10 +41,15 @@ class ChatViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
+
+    fun textInputChange(text: String) = intent {
+        reduce { state.copy(input = text) }
+    }
 }
 
 @Immutable
 data class ChatState(
+    val input: String = "",
     val response: String = "",
 )
 
