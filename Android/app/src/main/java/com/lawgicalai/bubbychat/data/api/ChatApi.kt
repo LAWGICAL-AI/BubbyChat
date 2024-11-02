@@ -1,4 +1,4 @@
-package com.lawgicalai.bubbychat.data.network
+package com.lawgicalai.bubbychat.data.api
 
 import com.lawgicalai.bubbychat.data.model.CommonRequest
 import okhttp3.ResponseBody

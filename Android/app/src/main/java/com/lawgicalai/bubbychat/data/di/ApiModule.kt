@@ -1,6 +1,6 @@
 package com.lawgicalai.bubbychat.data.di
 
-import com.lawgicalai.bubbychat.data.network.ChatApi
+import com.lawgicalai.bubbychat.data.api.ChatApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,7 +13,5 @@ import javax.inject.Singleton
 object ApiModule {
     @Singleton
     @Provides
-    fun provideChatApi(
-        retrofit: Retrofit
-    ): ChatApi = retrofit.create(ChatApi::class.java)
+    fun provideChatApi(retrofit: Retrofit): ChatApi = retrofit.create(ChatApi::class.java)
 }

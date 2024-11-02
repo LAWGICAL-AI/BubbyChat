@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException
+import com.lawgicalai.bubbychat.BuildConfig
 import com.lawgicalai.bubbychat.data.di.utils.isJsonArray
 import com.lawgicalai.bubbychat.data.di.utils.isJsonObject
 import dagger.Module
@@ -22,8 +23,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    val BASE_URL = "http://10.0.2.2:8080/"
-
     @Provides
     @Singleton
     fun provideGson(): Gson = GsonBuilder().setLenient().create()
@@ -38,7 +37,7 @@ object NetworkModule {
             .Builder()
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .build()
 

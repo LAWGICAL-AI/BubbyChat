@@ -3,6 +3,8 @@ package com.lawgicalai.bubbychat.presentation.chat
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,8 +31,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -76,6 +80,7 @@ private fun ChatScreen(
 ) {
     val scrollState = rememberScrollState()
     val listState = rememberLazyListState()
+    val focusManager = LocalFocusManager.current
     // 메시지가 추가되거나 마지막 메시지가 업데이트될 때마다 스크롤을 맨 아래로 이동
     LaunchedEffect(messages) {
         if (messages.isNotEmpty()) {
@@ -83,7 +88,15 @@ private fun ChatScreen(
         }
     }
 
-    Surface(modifier = Modifier.background(Color.White)) {
+    Surface(
+        modifier =
+            Modifier
+                .background(Color.White)
+                .clickable(
+                    indication = null, // 리플 효과 제거
+                    interactionSource = remember { MutableInteractionSource() },
+                ) { focusManager.clearFocus() },
+    ) {
         Column(
             modifier =
                 Modifier
@@ -109,6 +122,7 @@ private fun ChatScreen(
                 inputText = inputText,
                 onInputTextChange = onInputTextChange,
                 onSendQuestion = onSendQuestion,
+                focusManager = focusManager,
             )
         }
     }
@@ -156,8 +170,8 @@ fun InputTextField(
     inputText: String,
     onInputTextChange: (String) -> Unit,
     onSendQuestion: (String) -> Unit,
+    focusManager: FocusManager,
 ) {
-    val focusManager = LocalFocusManager.current
     Row(
         modifier =
             Modifier

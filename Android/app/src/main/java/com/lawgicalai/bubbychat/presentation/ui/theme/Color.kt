@@ -12,3 +12,5 @@ val Pink40 = Color(0xFF7D5260)
 
 val Orange = Color(0xFFFF9800)
 val BubbyGreen = Color(0xFFBDEACA)
+val BubbyGreenHarder = Color(0xFF63DC86)
+val BubbyGreenMoreHarder = Color(0xFF229B45)
