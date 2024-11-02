@@ -1,5 +1,7 @@
 package com.lawgicalai.bubbychat.presentation.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -31,6 +33,8 @@ fun MainNavHost() {
                 modifier = Modifier.padding(padding),
                 navController = navController,
                 startDestination = MainRoute.HOME.route,
+                exitTransition = { ExitTransition.None },
+                enterTransition = { EnterTransition.None },
             ) {
                 composable(route = MainRoute.HOME.route) {
                     HomeScreen()

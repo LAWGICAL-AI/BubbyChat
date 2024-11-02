@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
-import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkerGreen
+import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
 import com.lawgicalai.bubbychat.presentation.utils.noRippleClickable
 
 @Composable
@@ -31,7 +31,12 @@ fun BottomBarWithFAB(
     currentRoute: MainRoute,
     onFabClick: () -> Unit,
 ) {
-    Box {
+    val backgroundColor =
+        when (currentRoute) {
+            MainRoute.HOME -> Color.White // BubbyLightOrange.copy(alpha = 0.3f)
+            else -> Color.White
+        }
+    Box(modifier = Modifier.background(color = backgroundColor)) {
         BottomBar(
             currentRoute = currentRoute,
             onItemClick = { newRoute ->

@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
-import timber.log.Timber
 import javax.inject.Inject
 
 private const val TAG = "MainViewModel"
@@ -28,11 +27,6 @@ class ChatViewModel
         private val saveChatMessagesUseCase: SaveChatMessagesUseCase,
     ) : ViewModel(),
         ContainerHost<ChatState, ChatSideEffect> {
-        override fun onCleared() {
-            super.onCleared()
-            Timber.tag(TAG).d("onCleared: ")
-        }
-
         override val container: Container<ChatState, ChatSideEffect> =
             container(
                 initialState = ChatState(),
@@ -105,7 +99,7 @@ class ChatViewModel
 
         fun saveMessages() =
             intent {
-                saveChatMessagesUseCase(state.messages)
+                if (state.messages.size > 1) saveChatMessagesUseCase(state.messages)
                 reduce {
                     state.copy(
                         messages = emptyList(),
