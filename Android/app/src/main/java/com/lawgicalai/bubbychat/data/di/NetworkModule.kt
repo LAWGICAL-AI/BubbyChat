@@ -32,47 +32,48 @@ object NetworkModule {
     @Provides
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
-        gson: Gson
-    ): Retrofit {
-        return Retrofit.Builder()
+        gson: Gson,
+    ): Retrofit =
+        Retrofit
+            .Builder()
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(gson))
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .build()
-    }
 
     @Singleton
     @Provides
-    fun provideOkHttpClient(
-        logger: HttpLoggingInterceptor,
-    ) = OkHttpClient.Builder().run {
-        addInterceptor(logger)
-        connectTimeout(NETWORK_TIMEOUT, TimeUnit.SECONDS)
-        readTimeout(NETWORK_TIMEOUT, TimeUnit.SECONDS)
-        writeTimeout(NETWORK_TIMEOUT, TimeUnit.SECONDS)
-        build()
-    }
+    fun provideOkHttpClient(logger: HttpLoggingInterceptor) =
+        OkHttpClient.Builder().run {
+            addInterceptor(logger)
+            connectTimeout(NETWORK_TIMEOUT, TimeUnit.SECONDS)
+            readTimeout(NETWORK_TIMEOUT, TimeUnit.SECONDS)
+            writeTimeout(NETWORK_TIMEOUT, TimeUnit.SECONDS)
+            build()
+        }
 
     @Singleton
     @Provides
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
-        val loggingInterceptor = HttpLoggingInterceptor {
-            when {
-                !it.isJsonArray() && !it.isJsonObject() ->
-                    Timber.tag("RETROFIT").d("CONNECTION INFO: $it")
+        val loggingInterceptor =
+            HttpLoggingInterceptor {
+                when {
+                    !it.isJsonArray() && !it.isJsonObject() ->
+                        Timber.tag("RETROFIT").d("CONNECTION INFO: $it")
 
-                else -> try {
-                    Timber.tag("RETROFIT").d(
-                        GsonBuilder().setPrettyPrinting().create().toJson(
-                            JsonParser().parse(it)
-                        )
-                    )
-                } catch (m: JsonSyntaxException) {
-                    Timber.tag("RETROFIT").d(it)
+                    else ->
+                        try {
+                            Timber.tag("RETROFIT").d(
+                                GsonBuilder().setPrettyPrinting().create().toJson(
+                                    JsonParser().parse(it),
+                                ),
+                            )
+                        } catch (m: JsonSyntaxException) {
+                            Timber.tag("RETROFIT").d(it)
+                        }
                 }
             }
-        }
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         return loggingInterceptor
     }

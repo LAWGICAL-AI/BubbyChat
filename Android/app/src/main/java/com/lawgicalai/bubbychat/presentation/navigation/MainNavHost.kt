@@ -3,18 +3,13 @@ package com.lawgicalai.bubbychat.presentation.navigation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.presentation.chat.ChatScreen
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
 
@@ -22,39 +17,30 @@ import com.lawgicalai.bubbychat.presentation.route.MainRoute
 @Composable
 fun MainNavHost() {
     val navController = rememberNavController()
-    Surface {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                    title = {
-                        Text(text = stringResource(R.string.app_name))
-                    }
-                )
-            },
-            content = { padding ->
-                NavHost(
-                    modifier = Modifier.padding(padding),
-                    navController = navController,
-                    startDestination = MainRoute.HOME.route
-                ) {
-                    // navHost에 의해 composable screen이 관리된다.
-                    composable(route = MainRoute.HOME.route) {
+    Scaffold(
+        modifier = Modifier.background(Color.White),
+        content = { padding ->
+            NavHost(
+                modifier = Modifier.padding(padding),
+                navController = navController,
+                startDestination = MainRoute.HOME.route,
+            ) {
+                // navHost에 의해 composable screen이 관리된다.
+                composable(route = MainRoute.HOME.route) {
 //                        BoardScreen()
-                    }
-                    composable(route = MainRoute.SETTING.route) {
-//                        SettingScreen()
-                    }
-                    composable(route = MainRoute.CHAT.route) {
-                        ChatScreen()
-                    }
                 }
-            },
-            bottomBar = {
-                MainBottomBar(
-                    navController = navController
-                )
+                composable(route = MainRoute.SETTING.route) {
+//                        SettingScreen()
+                }
+                composable(route = MainRoute.CHAT.route) {
+                    ChatScreen()
+                }
             }
-        )
-    }
+        },
+        bottomBar = {
+            MainBottomBar(
+                navController = navController,
+            )
+        },
+    )
 }

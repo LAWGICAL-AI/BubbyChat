@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CommonRequest(
-    val input: String
+    val input: String,
 )

@@ -2,6 +2,7 @@ package com.lawgicalai.bubbychat.data.usecase.chat
 
 import com.lawgicalai.bubbychat.data.di.utils.ApiResult
 import com.lawgicalai.bubbychat.data.di.utils.safeApiCall
+import com.lawgicalai.bubbychat.data.model.CommonRequest
 import com.lawgicalai.bubbychat.data.network.ChatApi
 import com.lawgicalai.bubbychat.data.network.ChatService
 import com.lawgicalai.bubbychat.domain.usecase.GetChatResponseStreamUseCase
@@ -17,14 +18,14 @@ class GetChatResponseStreamUseCaseImpl @Inject constructor(
     private val chatApi: ChatApi
 ) : GetChatResponseStreamUseCase {
     override suspend fun invoke(input: String): Flow<Result<String>> = flow {
-        when (val result = safeApiCall { chatApi.fetchStreamResponse(input) }) {
+        when (val result = safeApiCall { chatApi.fetchStreamResponse(CommonRequest(input)) }) {
             is ApiResult.Error -> {
                 emit(Result.failure(result.exception))
                 Timber.tag("Streaming").e(result.exception, "Error fetching stream response")
             }
 
             is ApiResult.Success -> {
-                result.data.onSuccess { response ->
+                result.data.body()?.let { response ->
                     val source: BufferedSource = response.source().buffer
                     try {
                         while (!source.exhausted()) {
@@ -41,8 +42,6 @@ class GetChatResponseStreamUseCaseImpl @Inject constructor(
                     } finally {
                         response.close()
                     }
-                }.onFailure {
-                    Timber.tag("Streaming").e(it, "Error fetching stream response")
                 }
             }
         }
