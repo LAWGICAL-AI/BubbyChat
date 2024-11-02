@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -57,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
+import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyLightOrange
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -230,6 +232,7 @@ fun InputTextField(
                 Modifier
                     .size(40.dp)
                     .aspectRatio(1f)
+                    .rotate(90f)
                     .background(BubbyGreen, shape = RoundedCornerShape(10.dp))
                     .clickable {
                         onSendQuestion(inputText)
@@ -247,7 +250,7 @@ fun InputTextField(
 
 @Composable
 fun ChatBubble(message: ChatMessage) {
-    val backgroundColor = if (message.isMine) Color(0xFFDCF8C6) else Color(0xFFECECEC)
+    val backgroundColor = if (message.isMine) BubbyLightOrange else BubbyGreen
 
     Row(
         modifier =

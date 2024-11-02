@@ -77,5 +77,5 @@ object NetworkModule {
         return loggingInterceptor
     }
 
-    const val NETWORK_TIMEOUT = 10L
+    const val NETWORK_TIMEOUT = 20L
 }

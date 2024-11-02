@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -20,10 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.lawgicalai.bubbychat.R
-import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreenHarder
+import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkGreen
 import java.util.Locale
 
 @Composable
@@ -50,26 +53,30 @@ fun Record(
             contract = ActivityResultContracts.RequestPermission(),
         ) { granted ->
             hasPermission = granted
-            if (granted) isListening = true // 권한 허용 시 음성 인식 시작
+            if (granted) {
+                isListening = true
+                showDialog = true
+            }
         }
 
     Icon(
         painter =
-            painterResource(
-                id = if (isListening) R.drawable.ic_record else R.drawable.ic_mic,
-            ),
+        painterResource(
+            id = if (isListening) R.drawable.ic_record else R.drawable.ic_mic,
+        ),
         contentDescription = "mic",
         modifier =
-            modifier
-                .background(BubbyGreenHarder, shape = RoundedCornerShape(10.dp))
-                .clickable {
-                    if (hasPermission) {
-                        isListening = !isListening // 음성 인식 시작 또는 중지
-                        showDialog = isListening // 인식 중 다이얼로그 표시
-                    } else {
-                        permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                    }
-                }.padding(8.dp),
+        modifier
+            .background(BubbyDarkGreen, shape = RoundedCornerShape(10.dp))
+            .clickable {
+                if (hasPermission) {
+                    isListening = !isListening // 음성 인식 시작 또는 중지
+                    showDialog = isListening // 인식 중 다이얼로그 표시
+                } else {
+                    permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
+            }
+            .padding(8.dp),
         tint = if (isListening) Color.Red else Color.White,
     )
 
@@ -81,7 +88,7 @@ fun Record(
                 recognizedText = resultText
                 showDialog = false // 인식 완료 후 다이얼로그 닫기
                 isListening = false
-                onSendQuestion(recognizedText)
+                if (recognizedText.isNotEmpty()) onSendQuestion(recognizedText)
             },
             onCancel = {
                 // 취소 요청 시 상태 변경 및 인식 중단
@@ -104,14 +111,35 @@ fun Record(
                 Text(
                     text = "취소하기",
                     modifier =
-                        Modifier.clickable {
-                            showDialog = false
-                            isListening = false
-                        },
+                    Modifier.clickable {
+                        showDialog = false
+                        isListening = false
+                    },
+                    style = MaterialTheme.typography.labelMedium
                 )
             },
-            title = { Text(text = "궁금한걸 물어보세요", style = MaterialTheme.typography.titleMedium) },
-            text = { Text(text = recognizedText) },
+            title = {
+                Text(
+                    text = "궁금한걸 물어보세요",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Text(
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .fillMaxWidth()
+                        .background(
+                            shape = RoundedCornerShape(8.dp),
+                            color = Color.LightGray.copy(alpha = 0.3f)
+                        )
+                        .padding(8.dp),
+                    text = recognizedText,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            containerColor = Color.White
         )
     }
 }
@@ -125,7 +153,6 @@ private fun Record(
 ) {
     val context = LocalContext.current
     val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
-    var recognizedText by remember { mutableStateOf("") }
 
     val speechIntent =
         Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -158,7 +185,9 @@ private fun Record(
 
             override fun onPartialResults(partialResults: Bundle?) {
                 // 부분 결과가 있을 때 다이얼로그에 실시간 업데이트
-                val partialText = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull() ?: ""
+                val partialText =
+                    partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        ?.firstOrNull() ?: ""
                 onPartialResult(partialText)
             }
 

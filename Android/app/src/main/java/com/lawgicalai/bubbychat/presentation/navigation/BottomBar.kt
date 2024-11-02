@@ -11,8 +11,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,8 +21,8 @@ import androidx.navigation.NavController
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
-import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreenHarder
-import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreenMoreHarder
+import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkGreen
+import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkerGreen
 import com.lawgicalai.bubbychat.presentation.utils.noRippleClickable
 
 @Composable
@@ -51,13 +49,13 @@ fun BottomBarWithFAB(
         Icon(
             painter = painterResource(R.drawable.ic_send),
             contentDescription = "chat",
-            tint = if (currentRoute == MainRoute.CHAT) Color.White else BubbyGreenMoreHarder,
+            tint = if (currentRoute == MainRoute.CHAT) Color.White else BubbyDarkerGreen,
             modifier =
                 Modifier
                     .padding(bottom = 12.dp)
                     .size(68.dp)
                     .clip(CircleShape)
-                    .background(BubbyGreenHarder)
+                    .background(BubbyDarkGreen)
                     .align(Alignment.BottomCenter)
                     .noRippleClickable {
                         onFabClick()
@@ -79,14 +77,14 @@ fun BottomBar(
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                 .background(BubbyGreen)
                 .padding(vertical = 18.dp, horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         MainRoute.entries.forEach { route ->
             Icon(
                 painter = painterResource(route.iconResId),
                 contentDescription = route.contentDescription,
-                tint = if (currentRoute == route) Color.White else BubbyGreenMoreHarder,
+                tint = if (currentRoute == route) Color.White else BubbyDarkerGreen,
                 modifier =
                     Modifier
                         .size(28.dp)
