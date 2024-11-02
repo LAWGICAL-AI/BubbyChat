@@ -1,4 +1,4 @@
-package com.lawgicalai.bubbychat.presentation.main
+package com.lawgicalai.bubbychat.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

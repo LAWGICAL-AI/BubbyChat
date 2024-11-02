@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,11 +57,15 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.lawgicalai.bubbychat.R
+import com.lawgicalai.bubbychat.domain.model.ChatMessage
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyLightOrange
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
+import timber.log.Timber
+
+private const val TAG = "ChatScreen"
 
 @Composable
 fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
@@ -74,6 +79,14 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
             }
         }
     }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            Timber.tag(TAG).d("onDispose")
+            viewModel.saveMessages()
+        }
+    }
+
     ChatScreen(
         onSendQuestion = viewModel::getResponse,
         onInputTextChange = viewModel::textInputChange,
@@ -242,7 +255,10 @@ fun InputTextField(
         )
         Record(
             modifier =
-                Modifier.size(40.dp).aspectRatio(1f).padding(start = 4.dp),
+                Modifier
+                    .size(40.dp)
+                    .aspectRatio(1f)
+                    .padding(start = 4.dp),
             onSendQuestion = onSendQuestion,
         )
     }

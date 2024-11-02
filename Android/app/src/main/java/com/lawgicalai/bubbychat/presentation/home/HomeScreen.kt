@@ -1,4 +1,4 @@
-package com.lawgicalai.bubbychat.presentation.main
+package com.lawgicalai.bubbychat.presentation.home
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -7,23 +7,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
 
 @Composable
-fun MainScreen(){
-    Greeting("This is MainScreen")
-}
+fun HomeScreen(){
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = name,
-        modifier = modifier
-    )
 }
 
 @Preview
 @Composable
-fun MainScreenPreview(){
+fun HomeScreenPreview(){
     BubbyChatTheme {
-        MainScreen()
+        HomeScreen()
     }
 }
 
