@@ -169,7 +169,7 @@ fun InputTextField(
             modifier =
                 Modifier
                     .weight(6f)
-                    .padding(end = 4.dp),
+                    .padding(end = 6.dp),
             shape = RoundedCornerShape(12.dp),
             value = inputText,
             textStyle = MaterialTheme.typography.bodyLarge,
@@ -191,6 +191,7 @@ fun InputTextField(
             modifier =
                 Modifier
                     .weight(1f)
+                    .padding(vertical = 2.dp)
                     .aspectRatio(1f)
                     .background(BubbyGreen, shape = RoundedCornerShape(10.dp)),
         ) {
