@@ -1,6 +1,11 @@
 package com.lawgicalai.bubbychat.presentation.chat
 
+import Record
+import android.Manifest
+import android.content.pm.PackageManager
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,7 +28,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,7 +35,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
@@ -45,6 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
@@ -56,6 +64,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
+
     viewModel.collectSideEffect {
         when (it) {
             is ChatSideEffect.Toast -> {
@@ -78,9 +87,26 @@ private fun ChatScreen(
     inputText: String,
     messages: List<ChatMessage>,
 ) {
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
     val listState = rememberLazyListState()
     val focusManager = LocalFocusManager.current
+    var hasPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO,
+            ) == PackageManager.PERMISSION_GRANTED,
+        )
+    }
+
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted: Boolean ->
+            hasPermission = isGranted
+        }
+
     // 메시지가 추가되거나 마지막 메시지가 업데이트될 때마다 스크롤을 맨 아래로 이동
     LaunchedEffect(messages) {
         if (messages.isNotEmpty()) {
@@ -197,25 +223,25 @@ fun InputTextField(
                     cursorColor = Color.Black,
                 ),
         )
-        IconButton(
-            onClick = {
-                onSendQuestion(inputText)
-                focusManager.clearFocus()
-            },
+        Icon(
+            painter = painterResource(id = R.drawable.ic_send),
+            contentDescription = "Send",
             modifier =
                 Modifier
-                    .weight(1f)
-                    .padding(vertical = 2.dp)
+                    .size(40.dp)
                     .aspectRatio(1f)
-                    .background(BubbyGreen, shape = RoundedCornerShape(10.dp)),
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_send),
-                contentDescription = null,
-                modifier = Modifier.size(32.dp),
-                tint = Color.White, // 아이콘 색상 설정
-            )
-        }
+                    .background(BubbyGreen, shape = RoundedCornerShape(10.dp))
+                    .clickable {
+                        onSendQuestion(inputText)
+                        focusManager.clearFocus()
+                    }.padding(6.dp),
+            tint = Color.White,
+        )
+        Record(
+            modifier =
+                Modifier.size(40.dp).aspectRatio(1f).padding(start = 4.dp),
+            onSendQuestion = onSendQuestion,
+        )
     }
 }
 

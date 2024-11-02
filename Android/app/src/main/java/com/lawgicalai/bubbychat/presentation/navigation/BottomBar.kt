@@ -78,7 +78,7 @@ fun BottomBar(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                 .background(BubbyGreen)
-                .padding(vertical = 16.dp, horizontal = 8.dp),
+                .padding(vertical = 18.dp, horizontal = 8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
     ) {
