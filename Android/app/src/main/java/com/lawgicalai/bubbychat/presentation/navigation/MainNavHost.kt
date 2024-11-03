@@ -37,7 +37,14 @@ fun MainNavHost() {
                 enterTransition = { EnterTransition.None },
             ) {
                 composable(route = MainRoute.HOME.route) {
-                    HomeScreen()
+                    HomeScreen(onStartClick = {
+                        // 시작하기 버튼 클릭 시 FAB 클릭 이벤트 트리거
+                        navController.navigate(MainRoute.CHAT.route) {
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    })
                 }
                 composable(route = MainRoute.SETTING.route) {
                     // SettingScreen()을 추가할 수 있습니다.

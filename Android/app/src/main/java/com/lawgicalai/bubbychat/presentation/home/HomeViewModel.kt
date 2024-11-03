@@ -38,7 +38,7 @@ class HomeViewModel
             getAllSessions()
         }
 
-        private fun getAllSessions() =
+        fun getAllSessions() =
             intent {
                 val sessions = getAllChatSessionsUseCase()
                 Timber.tag(TAG).d("getAllSessions: $sessions")

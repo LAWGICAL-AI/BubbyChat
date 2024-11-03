@@ -99,7 +99,11 @@ class ChatViewModel
 
         fun saveMessages() =
             intent {
-                if (state.messages.size > 1) saveChatMessagesUseCase(state.messages)
+                if (state.messages.size > 1 && state.messages[1].text.length > 6) {
+                    saveChatMessagesUseCase(
+                        state.messages,
+                    )
+                }
                 reduce {
                     state.copy(
                         messages = emptyList(),

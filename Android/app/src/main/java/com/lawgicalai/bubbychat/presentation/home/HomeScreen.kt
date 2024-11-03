@@ -1,6 +1,14 @@
 package com.lawgicalai.bubbychat.presentation.home
 
 import android.widget.Toast
+import androidx.compose.animation.core.InfiniteRepeatableSpec
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.StartOffsetType
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,41 +21,57 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.domain.model.ChatSession
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
+import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkerGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGrayDark
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyLightOrange
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel(),
+    onStartClick: () -> Unit,
+) {
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
 
@@ -58,9 +82,15 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             }
         }
     }
+
+    LaunchedEffect(Unit) {
+        viewModel.getAllSessions()
+    }
+
     HomeScreen(
         chatSessions = state.sessions,
         onSessionClick = {},
+        onStartClick = onStartClick,
     )
 }
 
@@ -69,6 +99,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
 private fun HomeScreen(
     chatSessions: List<ChatSession>,
     onSessionClick: (ChatSession) -> Unit,
+    onStartClick: () -> Unit,
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     val coroutineScope = rememberCoroutineScope()
@@ -84,7 +115,7 @@ private fun HomeScreen(
                 onSessionClick = onSessionClick,
             )
         },
-        sheetPeekHeight = 300.dp, // BottomSheet 기본 높이
+        sheetPeekHeight = 300.dp, // minHeight BottomSheet
         sheetDragHandle = {
             Box(
                 modifier =
@@ -96,9 +127,9 @@ private fun HomeScreen(
                         .width(20.dp),
             )
         },
+        sheetShadowElevation = 12.dp,
         sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         content = { padding ->
-            // 메인 화면 콘텐츠
             Column(
                 modifier =
                     Modifier
@@ -108,19 +139,102 @@ private fun HomeScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                // 예: 이전 상담 내역 보기 버튼
-                Button(
-                    onClick = {
-                        coroutineScope.launch {
-                            scaffoldState.bottomSheetState.expand() // BottomSheet 확장
-                        }
-                    },
+                Spacer(modifier = Modifier.weight(1f))
+                Image(
+                    painter = painterResource(id = R.drawable.ic_launcher_playstore),
+                    contentDescription = null,
+                    modifier =
+                        Modifier
+                            .size(120.dp)
+                            .clip(CircleShape),
+                )
+                Spacer(modifier = Modifier.heightIn(min = 16.dp, max = 16.dp))
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                 ) {
-                    Text("이전 상담 내역 보기")
+                    Text(
+                        text = "안녕하세요, 동현님",
+                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                    )
+                    Text(text = "버비와 대화를 시작해보세요", style = MaterialTheme.typography.bodyLarge)
                 }
+                CarouselText()
+                Button(
+                    onClick = onStartClick,
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = BubbyDarkerGreen),
+                ) {
+                    Text(
+                        text = "\uD83E\uDD5A시작하기\uD83D\uDC25",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    )
+                }
+
+                Text(
+                    modifier = Modifier.padding(bottom = 4.dp),
+                    text = "AI의 정보는 틀릴 수 있습니다. 중요한 정보는 검증과정이 필요합니다",
+                    style = MaterialTheme.typography.bodySmall.copy(color = BubbyGrayDark),
+                )
             }
         },
     )
+}
+
+@Composable
+fun CarouselText() {
+    val messages =
+        listOf(
+            "회사에서 부당해고를 당했다고 생각하는데 어떻게 해야할까요?",
+            "특허 출원을 하려고 하는데 어떤 과정을 거쳐야 하나요?",
+            "임대차 계약을 해지하고 싶은데 어떤 절차를 밟아야 하나요?",
+            "임금체불이 발생했는데 어떻게 대응해야 할까요?",
+            "건설 중인 아파트의 분양계약을 해제하려면 어떻게 해야 할까요?",
+        )
+
+    var currentIndex by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(6000) // 6초마다 텍스트 변경 fade-in,out 6초
+            currentIndex = (currentIndex + 1) % messages.size
+        }
+    }
+
+    val transition = rememberInfiniteTransition(label = "")
+    val alpha by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec =
+            InfiniteRepeatableSpec(
+                animation = tween(3000), // tween 이니까 한 텍스트에 6초
+                RepeatMode.Reverse,
+                StartOffset(0, StartOffsetType.FastForward),
+            ),
+        label = "FloatAnimation",
+    )
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFEFEFEF))
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = messages[currentIndex],
+            fontSize = 16.sp,
+            color = Color.DarkGray.copy(alpha = alpha),
+            maxLines = 1,
+            style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
 }
 
 @Composable
@@ -165,7 +279,7 @@ fun ChatSessionCard(
             Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .heightIn(min = 180.dp, max = 180.dp)
+                .heightIn(min = 160.dp, max = 160.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(BubbyLightOrange)
                 .clickable { onClick() }
@@ -194,7 +308,7 @@ fun ChatSessionCard(
             Text(
                 text = chatSession.timestamp,
                 color = Color.Black,
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
             )
         }
     }
@@ -206,6 +320,7 @@ fun HomeScreenPreview() {
     BubbyChatTheme {
         HomeScreen(
             emptyList(),
+            {},
             {},
         )
     }
