@@ -29,7 +29,7 @@ class GetChatResponseUseCaseImpl
                         result.data.output?.let { data ->
                             val fullText = data.content.replace(Regex("""\\u003c\|.*?\|\u003e"""), "")
                             try {
-                                val chunkSize = 1 // 한 번에 emit할 글자 수
+                                val chunkSize = 3 // 한 번에 emit할 글자 수
                                 for (i in fullText.indices step chunkSize) {
                                     val chunk =
                                         fullText.substring(
