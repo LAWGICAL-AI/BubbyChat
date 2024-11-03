@@ -10,6 +10,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -146,7 +147,12 @@ private fun HomeScreen(
                     modifier =
                         Modifier
                             .size(120.dp)
-                            .clip(CircleShape),
+                            .clip(CircleShape)
+                            .border(
+                                width = 4.dp,
+                                color = BubbyDarkerGreen.copy(alpha = 0.5f),
+                                shape = CircleShape,
+                            ),
                 )
                 Spacer(modifier = Modifier.heightIn(min = 16.dp, max = 16.dp))
                 Column(
@@ -165,7 +171,7 @@ private fun HomeScreen(
                 Button(
                     onClick = onStartClick,
                     modifier = Modifier.padding(vertical = 16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BubbyDarkerGreen),
+                    colors = ButtonDefaults.buttonColors(containerColor = BubbyDarkerGreen.copy(alpha = 0.9f)),
                 ) {
                     Text(
                         text = "\uD83E\uDD5A시작하기\uD83D\uDC25",
@@ -174,7 +180,7 @@ private fun HomeScreen(
                 }
 
                 Text(
-                    modifier = Modifier.padding(bottom = 4.dp),
+                    modifier = Modifier.padding(bottom = 8.dp),
                     text = "AI의 정보는 틀릴 수 있습니다. 중요한 정보는 검증과정이 필요합니다",
                     style = MaterialTheme.typography.bodySmall.copy(color = BubbyGrayDark),
                 )
@@ -221,7 +227,7 @@ fun CarouselText() {
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(20.dp))
                 .background(Color(0xFFEFEFEF))
                 .padding(horizontal = 16.dp, vertical = 16.dp),
         contentAlignment = Alignment.Center,
