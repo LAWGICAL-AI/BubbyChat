@@ -1,5 +1,6 @@
 package com.lawgicalai.bubbychat.data.api
 
+import com.lawgicalai.bubbychat.data.model.BubbyResponse
 import com.lawgicalai.bubbychat.data.model.CommonRequest
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -13,4 +14,9 @@ interface ChatApi {
     suspend fun fetchStreamResponse(
         @Body input: CommonRequest,
     ): Response<ResponseBody>
+
+    @POST("chat")
+    suspend fun fetchChatResponse(
+        @Body input: CommonRequest,
+    ): BubbyResponse<String>
 }
