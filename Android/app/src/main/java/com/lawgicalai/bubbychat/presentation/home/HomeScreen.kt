@@ -54,7 +54,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -113,7 +112,6 @@ private fun HomeScreen(
     val scaffoldState = rememberBottomSheetScaffoldState()
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-    val layoutDirection = LocalLayoutDirection.current
     val peekHeight = screenHeight * 0.2f
     BottomSheetScaffold(
         containerColor = BubbyGreen.copy(alpha = 0.1f),
@@ -355,7 +353,7 @@ fun ChatSessionList(
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().padding(top = 20.dp),
             ) {
                 items(chatSessions) { session ->
                     ChatSessionCard(

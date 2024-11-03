@@ -78,16 +78,21 @@ class ChatViewModel
                                 // 첫 번째 응답이 도착하면 '...' 메시지를 대체하여 응답 표시
                                 if (updatedMessages[initialResponseIndex].text.startsWith(".")) {
                                     updatedMessages[initialResponseIndex] =
-                                        ChatMessage("$data", isMine = false)
+                                        ChatMessage(data.text, isMine = false)
                                 } else {
                                     // 이후 데이터는 기존 메시지에 덧붙이기
                                     val currentResponse =
-                                        updatedMessages[initialResponseIndex].text + data
+                                        updatedMessages[initialResponseIndex].text + data.text
                                     updatedMessages[initialResponseIndex] =
                                         ChatMessage(currentResponse, isMine = false)
                                 }
 
                                 reduce { state.copy(messages = updatedMessages) }
+
+                                if (data.isEnd)
+                                    {
+                                        reduce { state.copy(isResponseComplete = true) }
+                                    }
                             }.onFailure {
                                 dotsJob.cancel()
                                 val errorMessage =
@@ -126,12 +131,22 @@ class ChatViewModel
                     )
                 }
             }
+
+        fun resetResponse() =
+            intent {
+                reduce {
+                    state.copy(
+                        isResponseComplete = false,
+                    )
+                }
+            }
     }
 
 @Immutable
 data class ChatState(
     val input: String = "",
     val messages: List<ChatMessage> = emptyList(),
+    val isResponseComplete: Boolean = false,
 )
 
 sealed interface ChatSideEffect {
