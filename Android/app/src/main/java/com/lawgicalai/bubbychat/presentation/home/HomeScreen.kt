@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,7 +55,9 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -110,7 +114,10 @@ private fun HomeScreen(
     onStartClick: () -> Unit,
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
-
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
+    val layoutDirection = LocalLayoutDirection.current
+    val peekHeight = screenHeight * 0.2f
     BottomSheetScaffold(
         containerColor = BubbyGreen.copy(alpha = 0.1f),
         modifier = Modifier.background(Color.White),
@@ -122,7 +129,7 @@ private fun HomeScreen(
                 onSessionClick = onSessionClick,
             )
         },
-        sheetPeekHeight = 260.dp, // minHeight BottomSheet
+        sheetPeekHeight = peekHeight, // minHeight BottomSheet
         sheetDragHandle = {
             Box(
                 modifier =
@@ -135,7 +142,6 @@ private fun HomeScreen(
             )
         },
         sheetShadowElevation = 12.dp,
-        sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         content = { padding ->
             Column(
                 modifier =
@@ -149,22 +155,21 @@ private fun HomeScreen(
                     WavyAnimation(
                         modifier =
                             Modifier
-                                .offset(y = (-4).dp)
+                                .offset(y = (-12).dp)
                                 .fillMaxWidth()
                                 .rotate(180f)
-                                .height(200.dp),
+                                .height(184.dp),
                     )
                     WavyAnimation(
                         modifier =
                             Modifier
-                                .offset(y = (-4).dp)
+                                .offset(y = (-12).dp)
                                 .fillMaxWidth()
                                 .rotate(180f)
-                                .height(200.dp),
+                                .height(184.dp),
                         wavelength = 300f,
                     )
                 }
-
                 Image(
                     painter = painterResource(id = R.drawable.ic_launcher_playstore),
                     contentDescription = null,
@@ -174,7 +179,7 @@ private fun HomeScreen(
                             .clip(CircleShape)
                             .border(
                                 width = 4.dp,
-                                color = BubbyDarkerGreen.copy(alpha = 0.5f),
+                                color = BubbyDarkerGreen.copy(alpha = 0.2f),
                                 shape = CircleShape,
                             ),
                 )
@@ -186,7 +191,7 @@ private fun HomeScreen(
                 ) {
                     Text(
                         text = "안녕하세요, 동현님",
-                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                     )
                     Text(text = "버비와 대화를 시작해보세요", style = MaterialTheme.typography.bodyLarge)
                 }
