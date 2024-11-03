@@ -230,7 +230,7 @@ fun WavyAnimation(
         targetValue = 2 * Math.PI.toFloat(),
         animationSpec =
             infiniteRepeatable(
-                animation = tween(4000, easing = LinearEasing), // 2초 주기로 파동
+                animation = tween(5000, easing = LinearEasing), // 2초 주기로 파동
                 repeatMode = RepeatMode.Restart,
             ),
         label = "",
@@ -239,7 +239,7 @@ fun WavyAnimation(
     Canvas(modifier = modifier) {
         drawWave(
             waveOffset = waveOffset,
-            amplitude = 100f,
+            amplitude = 120f,
             wavelength = wavelength,
             waveColor = waveColor.copy(alpha = 0.5f),
         )

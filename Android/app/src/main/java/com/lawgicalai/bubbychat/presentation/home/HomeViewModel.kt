@@ -6,6 +6,7 @@ import com.lawgicalai.bubbychat.domain.model.ChatSession
 import com.lawgicalai.bubbychat.domain.usecase.GetAllChatSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.firstOrNull
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -40,7 +41,7 @@ class HomeViewModel
 
         fun getAllSessions() =
             blockingIntent {
-                val sessions = getAllChatSessionsUseCase()
+                val sessions = getAllChatSessionsUseCase().firstOrNull() ?: emptyList()
                 Timber.tag(TAG).d("getAllSessions: $sessions")
                 reduce {
                     state.copy(
