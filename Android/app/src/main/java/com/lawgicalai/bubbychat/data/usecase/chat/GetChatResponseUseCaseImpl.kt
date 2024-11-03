@@ -5,6 +5,7 @@ import com.lawgicalai.bubbychat.data.di.utils.ApiResult
 import com.lawgicalai.bubbychat.data.di.utils.safeApiCall
 import com.lawgicalai.bubbychat.data.model.CommonRequest
 import com.lawgicalai.bubbychat.domain.usecase.GetChatResponseUseCase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
@@ -24,8 +25,23 @@ class GetChatResponseUseCaseImpl
                     }
 
                     is ApiResult.Success -> {
-                        result.data.output?.let {
-                            emit(Result.success(it))
+                        result.data.output?.let { data ->
+                            val fullText = data.content
+                            try {
+                                val chunkSize = 1 // 한 번에 emit할 글자 수
+                                for (i in fullText.indices step chunkSize) {
+                                    val chunk =
+                                        fullText.substring(
+                                            i,
+                                            (i + chunkSize).coerceAtMost(fullText.length),
+                                        )
+                                    emit(Result.success(chunk))
+                                    delay(50) // 청크 간의 지연 시간
+                                }
+                            } catch (e: Exception) {
+                                Timber.tag("Chat").e(e, "Error streaming response in chunks")
+                                emit(Result.failure(e))
+                            }
                         }
                     }
                 }

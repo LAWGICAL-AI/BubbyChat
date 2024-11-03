@@ -20,13 +20,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -190,7 +187,7 @@ private fun HomeScreen(
                         text = "안녕하세요, 동현님",
                         style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                     )
-                    Text(text = "버비와 대화를 시작해보세요", style = MaterialTheme.typography.bodyLarge)
+                    Text(text = "버비와 법률관련 대화를 시작해보세요", style = MaterialTheme.typography.bodyLarge)
                 }
                 CarouselText()
                 Button(
@@ -336,21 +333,36 @@ fun ChatSessionList(
                 .padding(horizontal = 16.dp),
     ) {
         Text(
-            text = "이전 상담 내역",
+            text = "대화 목록",
             color = BubbyGrayDark,
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
             modifier = Modifier.padding(bottom = 8.dp),
         )
 
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 180.dp),
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            items(chatSessions) { session ->
-                ChatSessionCard(
-                    chatSession = session,
-                    onClick = { onSessionClick(session) },
+        if (chatSessions.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = "이전 상담 내역이 없습니다",
+                    color = BubbyGrayDark,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp),
                 )
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                items(chatSessions) { session ->
+                    ChatSessionCard(
+                        chatSession = session,
+                        onClick = { onSessionClick(session) },
+                    )
+                }
             }
         }
     }
@@ -364,7 +376,6 @@ fun ChatSessionCard(
     Row(
         modifier =
             Modifier
-                .fillMaxWidth()
                 .padding(8.dp)
                 .heightIn(min = 160.dp, max = 160.dp)
                 .clip(RoundedCornerShape(12.dp))
