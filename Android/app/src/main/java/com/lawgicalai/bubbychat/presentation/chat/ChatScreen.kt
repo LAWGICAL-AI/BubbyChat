@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -31,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,6 +65,8 @@ private const val TAG = "ChatScreen"
 fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
+    val ttsManager = remember { TextToSpeechManager(context) }
+    var isDialogVisible by remember { mutableStateOf(false) }
 
     viewModel.collectSideEffect {
         when (it) {
@@ -76,6 +80,7 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
         onDispose {
             Timber.tag(TAG).d("onDispose")
             viewModel.saveMessages()
+            ttsManager.stop()
         }
     }
 
@@ -86,7 +91,38 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
         messages = state.messages,
         isResponseComplete = state.isResponseComplete,
         resetResponse = viewModel::resetResponse,
+        onLongClickSpeak = {
+            ttsManager.speak(it)
+            isDialogVisible = true
+        },
     )
+
+    if (isDialogVisible) {
+        AlertDialog(
+            containerColor = Color.White,
+            onDismissRequest = {
+                isDialogVisible = false
+                ttsManager.stop() // 다이얼로그가 닫힐 때 TTS 중지
+            },
+            text = {
+                Text(
+                    textAlign = TextAlign.Center,
+                    text = "메시지를 읽고 있습니다...",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                )
+            },
+            confirmButton = {
+                Text(
+                    text = "닫기",
+                    modifier =
+                        Modifier.clickable {
+                            isDialogVisible = false
+                            ttsManager.stop() // 확인 버튼 클릭 시 TTS 중지
+                        },
+                )
+            },
+        )
+    }
 }
 
 @Composable
@@ -97,6 +133,7 @@ private fun ChatScreen(
     messages: List<ChatMessage>,
     isResponseComplete: Boolean,
     resetResponse: () -> Unit,
+    onLongClickSpeak: (String) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val focusManager = LocalFocusManager.current
@@ -135,7 +172,7 @@ private fun ChatScreen(
                 state = listState,
             ) {
                 items(messages) { message ->
-                    ChatBubble(message)
+                    ChatBubble(message, onLongClickSpeak)
                 }
             }
             InputTextField(
@@ -244,7 +281,10 @@ fun InputTextField(
 }
 
 @Composable
-fun ChatBubble(message: ChatMessage) {
+fun ChatBubble(
+    message: ChatMessage,
+    onLongClickSpeak: (String) -> Unit,
+) {
     val backgroundColor = if (message.isMine) BubbyLightOrange else BubbyGreen
 
     Row(
@@ -259,7 +299,10 @@ fun ChatBubble(message: ChatMessage) {
                 Modifier
                     .background(backgroundColor, shape = RoundedCornerShape(12.dp))
                     .padding(8.dp)
-                    .widthIn(max = 250.dp),
+                    .widthIn(max = 250.dp)
+                    .clickable {
+                        onLongClickSpeak(message.text) // 길게 누르면 speak 호출
+                    },
         ) {
             Text(text = message.text, fontSize = 16.sp)
         }
@@ -277,6 +320,7 @@ fun ChatScreenPreview() {
             messages = emptyList(),
             isResponseComplete = false,
             resetResponse = {},
+            onLongClickSpeak = {},
         )
     }
 }
