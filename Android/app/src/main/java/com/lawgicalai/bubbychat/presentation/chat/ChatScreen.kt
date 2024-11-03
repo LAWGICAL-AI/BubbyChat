@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
@@ -50,6 +51,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.domain.model.ChatMessage
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
@@ -97,6 +103,17 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
         },
     )
 
+    val composition by rememberLottieComposition(
+        spec =
+            LottieCompositionSpec.RawRes(
+                R.raw.anim_speak,
+            ),
+    )
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever,
+    )
+
     if (isDialogVisible) {
         AlertDialog(
             containerColor = Color.White,
@@ -104,12 +121,24 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
                 isDialogVisible = false
                 ttsManager.stop() // 다이얼로그가 닫힐 때 TTS 중지
             },
-            text = {
-                Text(
-                    textAlign = TextAlign.Center,
-                    text = "메시지를 읽고 있습니다...",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            icon = {
+                LottieAnimation(
+                    composition = composition,
+                    progress = { progress },
+                    modifier = Modifier.size(100.dp),
                 )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        textAlign = TextAlign.Center,
+                        text = "메시지를 읽고 있습니다...",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    )
+                }
             },
             confirmButton = {
                 Text(
