@@ -148,14 +148,12 @@ private fun HomeScreen(
                     Modifier
                         .fillMaxSize()
                         .padding(padding),
-                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Box {
                     WavyAnimation(
                         modifier =
                             Modifier
-                                .offset(y = (-12).dp)
                                 .fillMaxWidth()
                                 .rotate(180f)
                                 .height(184.dp),
@@ -163,7 +161,6 @@ private fun HomeScreen(
                     WavyAnimation(
                         modifier =
                             Modifier
-                                .offset(y = (-12).dp)
                                 .fillMaxWidth()
                                 .rotate(180f)
                                 .height(184.dp),
@@ -288,7 +285,7 @@ fun CarouselText() {
 
     LaunchedEffect(Unit) {
         while (true) {
-            delay(6000) // 6초마다 텍스트 변경 fade-in,out 6초
+            delay(5000) // 6초마다 텍스트 변경 fade-in,out 6초
             currentIndex = (currentIndex + 1) % messages.size
         }
     }
@@ -299,7 +296,7 @@ fun CarouselText() {
         targetValue = 1f,
         animationSpec =
             InfiniteRepeatableSpec(
-                animation = tween(3000), // tween 이니까 한 텍스트에 6초
+                animation = tween(2500), // tween 이니까 한 텍스트에 6초
                 RepeatMode.Reverse,
                 StartOffset(0, StartOffsetType.FastForward),
             ),
