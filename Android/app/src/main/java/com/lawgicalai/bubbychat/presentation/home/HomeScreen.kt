@@ -2,12 +2,15 @@ package com.lawgicalai.bubbychat.presentation.home
 
 import android.widget.Toast
 import androidx.compose.animation.core.InfiniteRepeatableSpec
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.StartOffset
 import androidx.compose.animation.core.StartOffsetType
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,12 +45,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -67,6 +73,7 @@ import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyLightOrange
 import kotlinx.coroutines.delay
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
+import kotlin.math.sin
 
 @Composable
 fun HomeScreen(
@@ -103,10 +110,9 @@ private fun HomeScreen(
     onStartClick: () -> Unit,
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
 
     BottomSheetScaffold(
-        containerColor = Color.White,
+        containerColor = BubbyGreen.copy(alpha = 0.1f),
         modifier = Modifier.background(Color.White),
         scaffoldState = scaffoldState,
         sheetContainerColor = Color.White,
@@ -116,7 +122,7 @@ private fun HomeScreen(
                 onSessionClick = onSessionClick,
             )
         },
-        sheetPeekHeight = 300.dp, // minHeight BottomSheet
+        sheetPeekHeight = 260.dp, // minHeight BottomSheet
         sheetDragHandle = {
             Box(
                 modifier =
@@ -135,12 +141,30 @@ private fun HomeScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .background(BubbyGreen.copy(alpha = 0.1f))
                         .padding(padding),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(modifier = Modifier.weight(1f))
+                Box {
+                    WavyAnimation(
+                        modifier =
+                            Modifier
+                                .offset(y = (-4).dp)
+                                .fillMaxWidth()
+                                .rotate(180f)
+                                .height(200.dp),
+                    )
+                    WavyAnimation(
+                        modifier =
+                            Modifier
+                                .offset(y = (-4).dp)
+                                .fillMaxWidth()
+                                .rotate(180f)
+                                .height(200.dp),
+                        wavelength = 300f,
+                    )
+                }
+
                 Image(
                     painter = painterResource(id = R.drawable.ic_launcher_playstore),
                     contentDescription = null,
@@ -154,7 +178,6 @@ private fun HomeScreen(
                                 shape = CircleShape,
                             ),
                 )
-                Spacer(modifier = Modifier.heightIn(min = 16.dp, max = 16.dp))
                 Column(
                     modifier =
                         Modifier
@@ -170,8 +193,14 @@ private fun HomeScreen(
                 CarouselText()
                 Button(
                     onClick = onStartClick,
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BubbyDarkerGreen.copy(alpha = 0.9f)),
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor =
+                                BubbyDarkerGreen.copy(
+                                    alpha = 0.9f,
+                                ),
+                        ),
                 ) {
                     Text(
                         text = "\uD83E\uDD5A시작하기\uD83D\uDC25",
@@ -187,6 +216,56 @@ private fun HomeScreen(
             }
         },
     )
+}
+
+@Composable
+fun WavyAnimation(
+    modifier: Modifier = Modifier,
+    waveColor: Color = BubbyGreen,
+    wavelength: Float = 200f,
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val waveOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 2 * Math.PI.toFloat(),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(4000, easing = LinearEasing), // 2초 주기로 파동
+                repeatMode = RepeatMode.Restart,
+            ),
+        label = "",
+    )
+
+    Canvas(modifier = modifier) {
+        drawWave(
+            waveOffset = waveOffset,
+            amplitude = 100f,
+            wavelength = wavelength,
+            waveColor = waveColor.copy(alpha = 0.5f),
+        )
+    }
+}
+
+private fun DrawScope.drawWave(
+    waveOffset: Float,
+    amplitude: Float,
+    wavelength: Float,
+    waveColor: Color,
+) {
+    val path =
+        Path().apply {
+            moveTo(0f, size.height / 2)
+            for (x in 0 until size.width.toInt()) {
+                val y =
+                    size.height / 2 + amplitude * sin((x / wavelength + waveOffset).toDouble()).toFloat()
+                lineTo(x.toFloat(), y)
+            }
+            lineTo(size.width, size.height)
+            lineTo(0f, size.height)
+            close()
+        }
+
+    drawPath(path, color = waveColor)
 }
 
 @Composable
