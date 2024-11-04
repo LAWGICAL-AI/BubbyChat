@@ -1,11 +1,7 @@
 package com.lawgicalai.bubbychat.presentation.chat
 
 import Record
-import android.Manifest
-import android.content.pm.PackageManager
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,9 +20,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -42,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
@@ -54,8 +50,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.domain.model.ChatMessage
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
@@ -71,6 +71,8 @@ private const val TAG = "ChatScreen"
 fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
+    val ttsManager = remember { TextToSpeechManager(context) }
+    var isDialogVisible by remember { mutableStateOf(false) }
 
     viewModel.collectSideEffect {
         when (it) {
@@ -84,6 +86,7 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
         onDispose {
             Timber.tag(TAG).d("onDispose")
             viewModel.saveMessages()
+            ttsManager.stop()
         }
     }
 
@@ -92,7 +95,63 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
         onInputTextChange = viewModel::textInputChange,
         inputText = state.input,
         messages = state.messages,
+        isResponseComplete = state.isResponseComplete,
+        resetResponse = viewModel::resetResponse,
+        onLongClickSpeak = {
+            ttsManager.speak(it)
+            isDialogVisible = true
+        },
     )
+
+    val composition by rememberLottieComposition(
+        spec =
+        LottieCompositionSpec.RawRes(
+            R.raw.anim_speak,
+        ),
+    )
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever,
+    )
+
+    if (isDialogVisible) {
+        AlertDialog(
+            containerColor = Color.White,
+            onDismissRequest = {
+                isDialogVisible = false
+                ttsManager.stop() // 다이얼로그가 닫힐 때 TTS 중지
+            },
+            icon = {
+                LottieAnimation(
+                    composition = composition,
+                    progress = { progress },
+                    modifier = Modifier.size(100.dp),
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        textAlign = TextAlign.Center,
+                        text = "메시지를 읽고 있습니다...",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    )
+                }
+            },
+            confirmButton = {
+                Text(
+                    text = "닫기",
+                    modifier =
+                    Modifier.clickable {
+                        isDialogVisible = false
+                        ttsManager.stop() // 확인 버튼 클릭 시 TTS 중지
+                    },
+                )
+            },
+        )
+    }
 }
 
 @Composable
@@ -101,62 +160,48 @@ private fun ChatScreen(
     onInputTextChange: (String) -> Unit,
     inputText: String,
     messages: List<ChatMessage>,
+    isResponseComplete: Boolean,
+    resetResponse: () -> Unit,
+    onLongClickSpeak: (String) -> Unit,
 ) {
-    val context = LocalContext.current
-    val scrollState = rememberScrollState()
     val listState = rememberLazyListState()
     val focusManager = LocalFocusManager.current
-    var hasPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.RECORD_AUDIO,
-            ) == PackageManager.PERMISSION_GRANTED,
-        )
-    }
 
-    val permissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission(),
-        ) { isGranted: Boolean ->
-            hasPermission = isGranted
-        }
-
-    // 메시지가 추가되거나 마지막 메시지가 업데이트될 때마다 스크롤을 맨 아래로 이동
-    LaunchedEffect(messages) {
-        if (messages.isNotEmpty()) {
+    // Composable에서 isResponseComplete가 true일 때만 스크롤
+    LaunchedEffect(messages, isResponseComplete) {
+        if (isResponseComplete && messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.size - 1)
+            resetResponse()
         }
     }
 
     Surface(
         modifier =
-            Modifier
-                .background(Color.White)
-                .clickable(
-                    indication = null, // 리플 효과 제거
-                    interactionSource = remember { MutableInteractionSource() },
-                ) { focusManager.clearFocus() },
+        Modifier
+            .background(Color.White)
+            .clickable(
+                indication = null, // 리플 효과 제거
+                interactionSource = remember { MutableInteractionSource() },
+            ) { focusManager.clearFocus() },
     ) {
         Column(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-                    .verticalScroll(scrollState),
+            Modifier
+                .fillMaxSize()
+                .background(Color.White),
         ) {
             Header()
             LazyColumn(
                 modifier =
-                    Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp)
-                        .padding(bottom = 4.dp)
-                        .background(Color.White),
+                Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+                    .padding(bottom = 4.dp)
+                    .background(Color.White),
                 state = listState,
             ) {
                 items(messages) { message ->
-                    ChatBubble(message)
+                    ChatBubble(message, onLongClickSpeak)
                 }
             }
             InputTextField(
@@ -174,17 +219,17 @@ fun Header() {
     Column {
         Row(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .background(BubbyGreen),
+            Modifier
+                .fillMaxWidth()
+                .background(BubbyGreen),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(
                 modifier =
-                    Modifier
-                        .width(48.dp)
-                        .aspectRatio(1f),
+                Modifier
+                    .width(48.dp)
+                    .aspectRatio(1f),
                 painter = painterResource(id = R.drawable.ic_launcher_playstore),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
@@ -215,72 +260,79 @@ fun InputTextField(
 ) {
     Row(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
+        Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextField(
             modifier =
-                Modifier
-                    .weight(6f)
-                    .padding(end = 6.dp),
+            Modifier
+                .weight(6f)
+                .padding(end = 6.dp),
             shape = RoundedCornerShape(12.dp),
             value = inputText,
             textStyle = MaterialTheme.typography.bodyLarge,
             onValueChange = onInputTextChange,
             colors =
-                TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.LightGray.copy(alpha = 0.2f),
-                    focusedContainerColor = Color.LightGray.copy(alpha = 0.4f),
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    cursorColor = Color.Black,
-                ),
+            TextFieldDefaults.colors(
+                unfocusedContainerColor = Color.LightGray.copy(alpha = 0.2f),
+                focusedContainerColor = Color.LightGray.copy(alpha = 0.4f),
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                cursorColor = Color.Black,
+            ),
         )
         Icon(
             painter = painterResource(id = R.drawable.ic_send),
             contentDescription = "Send",
             modifier =
-                Modifier
-                    .size(40.dp)
-                    .aspectRatio(1f)
-                    .rotate(90f)
-                    .background(BubbyGreen, shape = RoundedCornerShape(10.dp))
-                    .clickable {
-                        onSendQuestion(inputText)
-                        focusManager.clearFocus()
-                    }.padding(6.dp),
+            Modifier
+                .size(40.dp)
+                .aspectRatio(1f)
+                .rotate(90f)
+                .background(BubbyGreen, shape = RoundedCornerShape(10.dp))
+                .clickable {
+                    onSendQuestion(inputText)
+                    focusManager.clearFocus()
+                }
+                .padding(6.dp),
             tint = Color.White,
         )
         Record(
             modifier =
-                Modifier
-                    .size(40.dp)
-                    .aspectRatio(1f)
-                    .padding(start = 4.dp),
+            Modifier
+                .size(40.dp)
+                .aspectRatio(1f)
+                .padding(start = 4.dp),
             onSendQuestion = onSendQuestion,
         )
     }
 }
 
 @Composable
-fun ChatBubble(message: ChatMessage) {
+fun ChatBubble(
+    message: ChatMessage,
+    onLongClickSpeak: (String) -> Unit,
+) {
     val backgroundColor = if (message.isMine) BubbyLightOrange else BubbyGreen
 
     Row(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
         horizontalArrangement = if (message.isMine) Arrangement.End else Arrangement.Start,
     ) {
         Box(
             modifier =
-                Modifier
-                    .background(backgroundColor, shape = RoundedCornerShape(12.dp))
-                    .padding(8.dp)
-                    .widthIn(max = 250.dp),
+            Modifier
+                .background(backgroundColor, shape = RoundedCornerShape(12.dp))
+                .padding(8.dp)
+                .widthIn(max = 250.dp)
+                .clickable {
+                    onLongClickSpeak(message.text) // 길게 누르면 speak 호출
+                },
         ) {
             Text(text = message.text, fontSize = 16.sp)
         }
@@ -296,6 +348,9 @@ fun ChatScreenPreview() {
             onInputTextChange = {},
             inputText = "",
             messages = emptyList(),
+            isResponseComplete = false,
+            resetResponse = {},
+            onLongClickSpeak = {},
         )
     }
 }

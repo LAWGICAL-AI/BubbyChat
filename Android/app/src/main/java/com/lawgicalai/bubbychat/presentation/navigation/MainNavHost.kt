@@ -1,5 +1,7 @@
 package com.lawgicalai.bubbychat.presentation.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -14,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.lawgicalai.bubbychat.presentation.chat.ChatScreen
 import com.lawgicalai.bubbychat.presentation.home.HomeScreen
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
+import com.lawgicalai.bubbychat.presentation.setting.SettingScreen
 
 @Composable
 fun MainNavHost() {
@@ -31,12 +34,21 @@ fun MainNavHost() {
                 modifier = Modifier.padding(padding),
                 navController = navController,
                 startDestination = MainRoute.HOME.route,
+                exitTransition = { ExitTransition.None },
+                enterTransition = { EnterTransition.None },
             ) {
                 composable(route = MainRoute.HOME.route) {
-                    HomeScreen()
+                    HomeScreen(onStartClick = {
+                        // 시작하기 버튼 클릭 시 FAB 클릭 이벤트 트리거
+                        navController.navigate(MainRoute.CHAT.route) {
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    })
                 }
                 composable(route = MainRoute.SETTING.route) {
-                    // SettingScreen()을 추가할 수 있습니다.
+                    SettingScreen()
                 }
                 composable(route = MainRoute.CHAT.route) {
                     ChatScreen()
