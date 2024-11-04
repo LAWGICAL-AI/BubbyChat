@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.lawgicalai.bubbychat.presentation.chat.ChatScreen
 import com.lawgicalai.bubbychat.presentation.home.HomeScreen
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
+import com.lawgicalai.bubbychat.presentation.setting.SettingScreen
 
 @Composable
 fun MainNavHost() {
@@ -47,7 +48,7 @@ fun MainNavHost() {
                     })
                 }
                 composable(route = MainRoute.SETTING.route) {
-                    // SettingScreen()을 추가할 수 있습니다.
+                    SettingScreen()
                 }
                 composable(route = MainRoute.CHAT.route) {
                     ChatScreen()
