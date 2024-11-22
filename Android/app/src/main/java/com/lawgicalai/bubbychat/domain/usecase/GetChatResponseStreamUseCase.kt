@@ -4,4 +4,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface GetChatResponseStreamUseCase {
     suspend operator fun invoke(input: String): Flow<Result<String>>
+
+    suspend fun fetchStreamResponse(input: String): Flow<Result<String>>
 }
