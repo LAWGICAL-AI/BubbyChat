@@ -91,6 +91,7 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
     }
 
     ChatScreen(
+        personaType = state.personaType,
         onSendQuestion = viewModel::getResponse,
         onInputTextChange = viewModel::textInputChange,
         inputText = state.input,
@@ -156,6 +157,7 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
 
 @Composable
 private fun ChatScreen(
+    personaType: String,
     onSendQuestion: (String) -> Unit,
     onInputTextChange: (String) -> Unit,
     inputText: String,
@@ -343,6 +345,7 @@ fun ChatBubble(
 fun ChatScreenPreview() {
     BubbyChatTheme {
         ChatScreen(
+            personaType = "friendly",
             onSendQuestion = {},
             onInputTextChange = {},
             inputText = "",

@@ -28,15 +28,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.lawgicalai.bubbychat.domain.model.Persona
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
-import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
 fun PersonaScreen(
     viewModel: ChatViewModel = hiltViewModel(),
-    onPersonaSelected: (String) -> Unit,
+    onPersonaSelected: () -> Unit,
 ) {
-    val state = viewModel.collectAsState().value
-    PersonaScreen(onPersonaSelected = onPersonaSelected)
+    PersonaScreen(onPersonaSelected = { personaType ->
+        viewModel.selectPersona(personaType)
+        onPersonaSelected()
+    })
 }
 
 @Composable
@@ -124,6 +125,6 @@ fun PersonaCard(
 @Composable
 fun PersonaScreenPreview() {
     BubbyChatTheme {
-        PersonaScreen(onPersonaSelected = {})
+        PersonaScreen(onPersonaSelected = { it -> })
     }
 }

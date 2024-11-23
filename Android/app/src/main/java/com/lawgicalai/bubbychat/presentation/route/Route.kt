@@ -22,6 +22,6 @@ enum class ChatRoute(
     override val contentDescription: String,
     override val iconResId: Int,
 ) : Route {
-    CHAT(route = "ChatScreen", contentDescription = "채팅", iconResId = R.drawable.ic_send),
     PERSONA(route = "PersonaScreen", contentDescription = "페르소나", iconResId = R.drawable.ic_send),
+    CHAT(route = "ChatScreen", contentDescription = "채팅", iconResId = R.drawable.ic_send),
 }

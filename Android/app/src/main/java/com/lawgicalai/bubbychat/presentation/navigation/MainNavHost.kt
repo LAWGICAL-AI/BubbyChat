@@ -68,7 +68,7 @@ fun MainNavHost() {
                             ChatScreen()
                         }
                         composable(route = ChatRoute.PERSONA.route) {
-                            PersonaScreen(onPersonaSelected = { personaType ->
+                            PersonaScreen(onPersonaSelected = {
                                 navController.navigate(ChatRoute.CHAT.route) {
                                     // 화면 유지를 위해 popTo는 달지 않았음
                                     launchSingleTop = true

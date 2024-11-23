@@ -138,6 +138,11 @@ class ChatViewModel
                     )
                 }
             }
+
+        fun selectPersona(personaType: String) =
+            intent {
+                reduce { state.copy(personaType = personaType) }
+            }
     }
 
 @Immutable
@@ -145,6 +150,7 @@ data class ChatState(
     val input: String = "",
     val messages: List<ChatMessage> = emptyList(),
     val isResponseComplete: Boolean = false,
+    val personaType: String = "friendly",
 )
 
 sealed interface ChatSideEffect {
