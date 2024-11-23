@@ -36,7 +36,6 @@ fun PersonaScreen(
     onPersonaSelected: (String) -> Unit,
 ) {
     val state = viewModel.collectAsState().value
-
     PersonaScreen(onPersonaSelected = onPersonaSelected)
 }
 

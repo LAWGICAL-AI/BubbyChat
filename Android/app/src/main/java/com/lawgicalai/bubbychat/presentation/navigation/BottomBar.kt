@@ -19,7 +19,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.lawgicalai.bubbychat.R
+import com.lawgicalai.bubbychat.presentation.route.ChatRoute
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
+import com.lawgicalai.bubbychat.presentation.route.Route
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkerGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
@@ -28,15 +30,10 @@ import com.lawgicalai.bubbychat.presentation.utils.noRippleClickable
 @Composable
 fun BottomBarWithFAB(
     navController: NavController,
-    currentRoute: MainRoute,
+    currentRoute: Route,
     onFabClick: () -> Unit,
 ) {
-    val backgroundColor =
-        when (currentRoute) {
-            MainRoute.HOME -> Color.White // BubbyLightOrange.copy(alpha = 0.3f)
-            else -> Color.White
-        }
-    Box(modifier = Modifier.background(color = backgroundColor)) {
+    Box(modifier = Modifier.background(color = Color.White)) {
         BottomBar(
             currentRoute = currentRoute,
             onItemClick = { newRoute ->
@@ -54,7 +51,7 @@ fun BottomBarWithFAB(
         Icon(
             painter = painterResource(R.drawable.ic_send),
             contentDescription = "chat",
-            tint = if (currentRoute == MainRoute.CHAT) Color.White else BubbyDarkerGreen,
+            tint = if (currentRoute in ChatRoute.entries) Color.White else BubbyDarkerGreen,
             modifier =
                 Modifier
                     .padding(bottom = 12.dp)
@@ -71,8 +68,8 @@ fun BottomBarWithFAB(
 
 @Composable
 fun BottomBar(
-    currentRoute: MainRoute,
-    onItemClick: (MainRoute) -> Unit,
+    currentRoute: Route,
+    onItemClick: (Route) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
