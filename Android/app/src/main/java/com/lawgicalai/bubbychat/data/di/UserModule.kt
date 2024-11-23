@@ -15,17 +15,11 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 abstract class UserModule {
     @Binds
-    abstract fun bindGetTokenUseCase(
-        uc: GetTokenUseCaseImpl,
-    ): GetTokenUseCase
+    abstract fun bindGetTokenUseCase(uc: GetTokenUseCaseImpl): GetTokenUseCase
 
     @Binds
-    abstract fun bindSetTokenUseCase(
-        uc: SetTokenUseCaseImpl,
-    ): SetTokenUseCase
+    abstract fun bindSetTokenUseCase(uc: SetTokenUseCaseImpl): SetTokenUseCase
 
     @Binds
-    abstract fun bindClearTokenUseCase(
-        uc: ClearTokenUseCaseImpl,
-    ): ClearTokenUseCase
+    abstract fun bindClearTokenUseCase(uc: ClearTokenUseCaseImpl): ClearTokenUseCase
 }

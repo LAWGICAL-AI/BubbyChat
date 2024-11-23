@@ -4,12 +4,17 @@ import kotlinx.io.IOException
 import java.net.SocketTimeoutException
 
 sealed class ApiResult<out T> {
-    data class Success<out T>(val data: T) : ApiResult<T>()
-    data class Error(val exception: Exception) : ApiResult<Nothing>()
+    data class Success<out T>(
+        val data: T,
+    ) : ApiResult<T>()
+
+    data class Error(
+        val exception: Exception,
+    ) : ApiResult<Nothing>()
 }
 
-suspend fun <T> safeApiCall(apiCall: suspend () -> T): ApiResult<T> {
-    return try {
+suspend fun <T> safeApiCall(apiCall: suspend () -> T): ApiResult<T> =
+    try {
         ApiResult.Success(apiCall())
     } catch (e: SocketTimeoutException) {
         println("Connection timed out.")
@@ -21,4 +26,3 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> T): ApiResult<T> {
         println("An unexpected error occurred: ${e.message}")
         ApiResult.Error(e)
     }
-}

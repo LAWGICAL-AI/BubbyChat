@@ -18,7 +18,7 @@ suspend fun BufferedSource.processEventStream(onData: suspend (String) -> Unit) 
             val line = source.readUtf8LineStrict()
             if (line.startsWith("data:")) {
                 val dataContent = line.removePrefix("data:").trim()
-                Timber.tag("Streaming").d("Received data: $dataContent")
+                Timber.tag("Streaming").d("데이터 수신: $dataContent")
                 onData(dataContent)
             }
         }
