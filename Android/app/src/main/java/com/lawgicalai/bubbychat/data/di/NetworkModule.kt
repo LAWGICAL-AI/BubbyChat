@@ -2,11 +2,10 @@ package com.lawgicalai.bubbychat.data.di
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonParser
-import com.google.gson.JsonSyntaxException
 import com.lawgicalai.bubbychat.BuildConfig
 import com.lawgicalai.bubbychat.data.di.utils.isJsonArray
 import com.lawgicalai.bubbychat.data.di.utils.isJsonObject
+import com.lawgicalai.bubbychat.data.utils.JsonLogger
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,7 +24,7 @@ import javax.inject.Singleton
 object NetworkModule {
     @Provides
     @Singleton
-    fun provideGson(): Gson = GsonBuilder().setLenient().create()
+    fun provideGson(): Gson = GsonBuilder().setPrettyPrinting().setLenient().create()
 
     @Singleton
     @Provides
@@ -54,23 +53,14 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
+    fun provideLoggingInterceptor(jsonLogger: JsonLogger): HttpLoggingInterceptor {
         val loggingInterceptor =
-            HttpLoggingInterceptor {
+            HttpLoggingInterceptor { message ->
                 when {
-                    !it.isJsonArray() && !it.isJsonObject() ->
-                        Timber.tag("RETROFIT").d("CONNECTION INFO: $it")
+                    !message.isJsonArray() && !message.isJsonObject() ->
+                        Timber.tag(JsonLogger.DEFAULT_TAG).d("CONNECTION INFO: $message")
 
-                    else ->
-                        try {
-                            Timber.tag("RETROFIT").d(
-                                GsonBuilder().setPrettyPrinting().create().toJson(
-                                    JsonParser().parse(it),
-                                ),
-                            )
-                        } catch (m: JsonSyntaxException) {
-                            Timber.tag("RETROFIT").d(it)
-                        }
+                    else -> jsonLogger.logJsonWithTag(message)
                 }
             }
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
