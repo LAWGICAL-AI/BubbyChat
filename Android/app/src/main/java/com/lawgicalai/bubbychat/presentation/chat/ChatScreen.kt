@@ -91,6 +91,7 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
     }
 
     ChatScreen(
+        personaType = state.personaType,
         onSendQuestion = viewModel::getResponse,
         onInputTextChange = viewModel::textInputChange,
         inputText = state.input,
@@ -105,9 +106,9 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
 
     val composition by rememberLottieComposition(
         spec =
-        LottieCompositionSpec.RawRes(
-            R.raw.anim_speak,
-        ),
+            LottieCompositionSpec.RawRes(
+                R.raw.anim_speak,
+            ),
     )
     val progress by animateLottieCompositionAsState(
         composition = composition,
@@ -144,10 +145,10 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
                 Text(
                     text = "닫기",
                     modifier =
-                    Modifier.clickable {
-                        isDialogVisible = false
-                        ttsManager.stop() // 확인 버튼 클릭 시 TTS 중지
-                    },
+                        Modifier.clickable {
+                            isDialogVisible = false
+                            ttsManager.stop() // 확인 버튼 클릭 시 TTS 중지
+                        },
                 )
             },
         )
@@ -156,6 +157,7 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
 
 @Composable
 private fun ChatScreen(
+    personaType: String,
     onSendQuestion: (String) -> Unit,
     onInputTextChange: (String) -> Unit,
     inputText: String,
@@ -177,27 +179,27 @@ private fun ChatScreen(
 
     Surface(
         modifier =
-        Modifier
-            .background(Color.White)
-            .clickable(
-                indication = null, // 리플 효과 제거
-                interactionSource = remember { MutableInteractionSource() },
-            ) { focusManager.clearFocus() },
+            Modifier
+                .background(Color.White)
+                .clickable(
+                    indication = null, // 리플 효과 제거
+                    interactionSource = remember { MutableInteractionSource() },
+                ) { focusManager.clearFocus() },
     ) {
         Column(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .background(Color.White),
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.White),
         ) {
             Header()
             LazyColumn(
                 modifier =
-                Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp)
-                    .padding(bottom = 4.dp)
-                    .background(Color.White),
+                    Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
+                        .padding(bottom = 4.dp)
+                        .background(Color.White),
                 state = listState,
             ) {
                 items(messages) { message ->
@@ -219,17 +221,17 @@ fun Header() {
     Column {
         Row(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .background(BubbyGreen),
+                Modifier
+                    .fillMaxWidth()
+                    .background(BubbyGreen),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(
                 modifier =
-                Modifier
-                    .width(48.dp)
-                    .aspectRatio(1f),
+                    Modifier
+                        .width(48.dp)
+                        .aspectRatio(1f),
                 painter = painterResource(id = R.drawable.ic_launcher_playstore),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
@@ -260,51 +262,50 @@ fun InputTextField(
 ) {
     Row(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextField(
             modifier =
-            Modifier
-                .weight(6f)
-                .padding(end = 6.dp),
+                Modifier
+                    .weight(6f)
+                    .padding(end = 6.dp),
             shape = RoundedCornerShape(12.dp),
             value = inputText,
             textStyle = MaterialTheme.typography.bodyLarge,
             onValueChange = onInputTextChange,
             colors =
-            TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.LightGray.copy(alpha = 0.2f),
-                focusedContainerColor = Color.LightGray.copy(alpha = 0.4f),
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                cursorColor = Color.Black,
-            ),
+                TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.LightGray.copy(alpha = 0.2f),
+                    focusedContainerColor = Color.LightGray.copy(alpha = 0.4f),
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    cursorColor = Color.Black,
+                ),
         )
         Icon(
             painter = painterResource(id = R.drawable.ic_send),
             contentDescription = "Send",
             modifier =
-            Modifier
-                .size(40.dp)
-                .aspectRatio(1f)
-                .rotate(90f)
-                .background(BubbyGreen, shape = RoundedCornerShape(10.dp))
-                .clickable {
-                    onSendQuestion(inputText)
-                    focusManager.clearFocus()
-                }
-                .padding(6.dp),
+                Modifier
+                    .size(40.dp)
+                    .aspectRatio(1f)
+                    .rotate(90f)
+                    .background(BubbyGreen, shape = RoundedCornerShape(10.dp))
+                    .clickable {
+                        onSendQuestion(inputText)
+                        focusManager.clearFocus()
+                    }.padding(6.dp),
             tint = Color.White,
         )
         Record(
             modifier =
-            Modifier
-                .size(40.dp)
-                .aspectRatio(1f)
-                .padding(start = 4.dp),
+                Modifier
+                    .size(40.dp)
+                    .aspectRatio(1f)
+                    .padding(start = 4.dp),
             onSendQuestion = onSendQuestion,
         )
     }
@@ -319,20 +320,20 @@ fun ChatBubble(
 
     Row(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
         horizontalArrangement = if (message.isMine) Arrangement.End else Arrangement.Start,
     ) {
         Box(
             modifier =
-            Modifier
-                .background(backgroundColor, shape = RoundedCornerShape(12.dp))
-                .padding(8.dp)
-                .widthIn(max = 250.dp)
-                .clickable {
-                    onLongClickSpeak(message.text) // 길게 누르면 speak 호출
-                },
+                Modifier
+                    .background(backgroundColor, shape = RoundedCornerShape(12.dp))
+                    .padding(8.dp)
+                    .widthIn(max = 250.dp)
+                    .clickable {
+                        onLongClickSpeak(message.text) // 길게 누르면 speak 호출
+                    },
         ) {
             Text(text = message.text, fontSize = 16.sp)
         }
@@ -344,6 +345,7 @@ fun ChatBubble(
 fun ChatScreenPreview() {
     BubbyChatTheme {
         ChatScreen(
+            personaType = "friendly",
             onSendQuestion = {},
             onInputTextChange = {},
             inputText = "",

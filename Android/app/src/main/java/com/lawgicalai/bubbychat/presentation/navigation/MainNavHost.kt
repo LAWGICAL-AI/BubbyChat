@@ -13,8 +13,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import com.lawgicalai.bubbychat.presentation.chat.ChatScreen
+import com.lawgicalai.bubbychat.presentation.chat.PersonaScreen
 import com.lawgicalai.bubbychat.presentation.home.HomeScreen
+import com.lawgicalai.bubbychat.presentation.route.ChatRoute
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
 import com.lawgicalai.bubbychat.presentation.setting.SettingScreen
 
@@ -24,7 +27,9 @@ fun MainNavHost() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute =
         navBackStackEntry?.destination?.route?.let { route ->
+            // MainRoute와 ChatRoute 모두에서 찾기
             MainRoute.entries.find { it.route == route }
+                ?: ChatRoute.entries.find { it.route == route }
         } ?: MainRoute.HOME
 
     Scaffold(
@@ -33,25 +38,44 @@ fun MainNavHost() {
             NavHost(
                 modifier = Modifier.padding(padding),
                 navController = navController,
-                startDestination = MainRoute.HOME.route,
+                startDestination = "main",
                 exitTransition = { ExitTransition.None },
                 enterTransition = { EnterTransition.None },
             ) {
-                composable(route = MainRoute.HOME.route) {
-                    HomeScreen(onStartClick = {
-                        // 시작하기 버튼 클릭 시 FAB 클릭 이벤트 트리거
-                        navController.navigate(MainRoute.CHAT.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
+                // 메인 그래프
+                navigation(
+                    startDestination = MainRoute.HOME.route,
+                    route = "main",
+                ) {
+                    composable(route = MainRoute.HOME.route) {
+                        HomeScreen(onStartClick = {
+                            navController.navigate("chat") {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        })
+                    }
+                    composable(route = MainRoute.SETTING.route) {
+                        SettingScreen()
+                    }
+
+                    navigation(
+                        startDestination = ChatRoute.PERSONA.route,
+                        route = "chat",
+                    ) {
+                        composable(route = ChatRoute.CHAT.route) {
+                            ChatScreen()
                         }
-                    })
-                }
-                composable(route = MainRoute.SETTING.route) {
-                    SettingScreen()
-                }
-                composable(route = MainRoute.CHAT.route) {
-                    ChatScreen()
+                        composable(route = ChatRoute.PERSONA.route) {
+                            PersonaScreen(onPersonaSelected = {
+                                navController.navigate(ChatRoute.CHAT.route) {
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            })
+                        }
+                    }
                 }
             }
         },
@@ -60,7 +84,7 @@ fun MainNavHost() {
                 navController = navController,
                 currentRoute = currentRoute,
                 onFabClick = {
-                    navController.navigate(MainRoute.CHAT.route) {
+                    navController.navigate("chat") {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
                         restoreState = true

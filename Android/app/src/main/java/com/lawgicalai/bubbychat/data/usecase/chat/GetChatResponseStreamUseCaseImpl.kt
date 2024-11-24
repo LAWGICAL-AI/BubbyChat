@@ -1,50 +1,50 @@
 package com.lawgicalai.bubbychat.data.usecase.chat
 
-import com.lawgicalai.bubbychat.data.api.ChatApi
-import com.lawgicalai.bubbychat.data.di.utils.ApiResult
-import com.lawgicalai.bubbychat.data.di.utils.safeApiCall
+import com.lawgicalai.bubbychat.BuildConfig
 import com.lawgicalai.bubbychat.data.model.CommonRequest
+import com.lawgicalai.bubbychat.data.utils.processEventStream
 import com.lawgicalai.bubbychat.domain.usecase.GetChatResponseStreamUseCase
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import okio.BufferedSource
+import kotlinx.coroutines.flow.flowOn
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
 import javax.inject.Inject
 
 class GetChatResponseStreamUseCaseImpl
     @Inject
     constructor(
-        private val chatApi: ChatApi,
+//        private val client: OkHttpClient, // 이게 한번에 로그를 묶어서 주려고 하면서, 딜레이가 걸린다
     ) : GetChatResponseStreamUseCase {
+        private val client = OkHttpClient()
+
         override suspend fun invoke(input: String): Flow<Result<String>> =
             flow {
-                when (val result = safeApiCall { chatApi.fetchStreamResponse(CommonRequest(input)) }) {
-                    is ApiResult.Error -> {
-                        emit(Result.failure(result.exception))
-                        Timber.tag("Streaming").e(result.exception, "Error fetching stream response")
-                    }
+                val request =
+                    Request
+                        .Builder()
+                        .url(BuildConfig.BASE_URL + "stream")
+                        .header("Accept", "text/event-stream")
+                        .post(CommonRequest(input).toRequestBody())
+                        .build()
 
-                    is ApiResult.Success -> {
-                        result.data.body()?.let { response ->
-                            val source: BufferedSource = response.source().buffer
-                            try {
-                                while (!source.exhausted()) {
-                                    val line = source.readUtf8Line()
-                                    if (line != null && line.startsWith("data:")) {
-                                        val dataContent = line.removePrefix("data:").trim()
-                                        Timber.tag("Streaming").d("Received data: $dataContent")
-                                        emit(Result.success(dataContent)) // 실시간으로 각 청크를 emit하여 뷰모델에 전달
-                                        delay(50)
-                                    }
-                                }
-                            } catch (e: Exception) {
-                                Timber.tag("Streaming").e(e, "Error reading stream")
-                            } finally {
-                                response.close()
-                            }
-                        }
+                val call = client.newCall(request)
+
+                try {
+                    val response = call.execute()
+                    if (!response.isSuccessful) {
+                        throw Exception("HTTP 에러코드: ${response.code}")
                     }
+                    response.body?.source()?.processEventStream { dataContent ->
+                        emit(Result.success(dataContent))
+                    }
+                } catch (e: Exception) {
+                    Timber.tag("Streaming").e(e, "Streaming 에러 발생")
+                    emit(Result.failure(e))
+                    return@flow
                 }
-            }
+            }.flowOn(Dispatchers.IO) // Okhttp는 IO 스레드에서 실행되어야 함
     }

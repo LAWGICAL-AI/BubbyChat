@@ -2,34 +2,24 @@ package com.lawgicalai.bubbychat.presentation.home
 
 import android.widget.Toast
 import androidx.compose.animation.core.InfiniteRepeatableSpec
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.StartOffset
 import androidx.compose.animation.core.StartOffsetType
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
@@ -50,8 +40,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -60,20 +48,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberAsyncImagePainter
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.domain.model.ChatSession
+import com.lawgicalai.bubbychat.domain.model.User
+import com.lawgicalai.bubbychat.presentation.anim.WavyAnimation
+import com.lawgicalai.bubbychat.presentation.home.component.ChatSessionList
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkerGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGrayDark
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
-import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyLightOrange
 import kotlinx.coroutines.delay
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
-import kotlin.math.sin
 
 @Composable
 fun HomeScreen(
@@ -96,6 +85,7 @@ fun HomeScreen(
     }
 
     HomeScreen(
+        userInfo = state.userInfo,
         chatSessions = state.sessions,
         onSessionClick = {},
         onStartClick = onStartClick,
@@ -105,6 +95,7 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen(
+    userInfo: User,
     chatSessions: List<ChatSession>,
     onSessionClick: (ChatSession) -> Unit,
     onStartClick: () -> Unit,
@@ -167,7 +158,7 @@ private fun HomeScreen(
                     contentDescription = null,
                     modifier =
                         Modifier
-                            .size(120.dp)
+                            .size(100.dp)
                             .clip(CircleShape)
                             .border(
                                 width = 4.dp,
@@ -181,10 +172,21 @@ private fun HomeScreen(
                             .fillMaxWidth()
                             .padding(16.dp),
                 ) {
-                    Text(
-                        text = "안녕하세요, 동현님",
-                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "안녕하세요, ${userInfo.displayName}님",
+                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                        )
+                        Image(
+                            painter = rememberAsyncImagePainter(model = userInfo.profileImage),
+                            contentDescription = "profileImage",
+                            modifier = Modifier.size(32.dp).padding(start = 4.dp),
+                        )
+                    }
+
                     Text(text = "버비와 법률관련 대화를 시작해보세요", style = MaterialTheme.typography.bodyLarge)
                 }
                 CarouselText()
@@ -213,56 +215,6 @@ private fun HomeScreen(
             }
         },
     )
-}
-
-@Composable
-fun WavyAnimation(
-    modifier: Modifier = Modifier,
-    waveColor: Color = BubbyGreen,
-    wavelength: Float = 200f,
-) {
-    val infiniteTransition = rememberInfiniteTransition(label = "")
-    val waveOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2 * Math.PI.toFloat(),
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(5000, easing = LinearEasing), // 2초 주기로 파동
-                repeatMode = RepeatMode.Restart,
-            ),
-        label = "",
-    )
-
-    Canvas(modifier = modifier) {
-        drawWave(
-            waveOffset = waveOffset,
-            amplitude = 120f,
-            wavelength = wavelength,
-            waveColor = waveColor.copy(alpha = 0.5f),
-        )
-    }
-}
-
-private fun DrawScope.drawWave(
-    waveOffset: Float,
-    amplitude: Float,
-    wavelength: Float,
-    waveColor: Color,
-) {
-    val path =
-        Path().apply {
-            moveTo(0f, size.height / 2)
-            for (x in 0 until size.width.toInt()) {
-                val y =
-                    size.height / 2 + amplitude * sin((x / wavelength + waveOffset).toDouble()).toFloat()
-                lineTo(x.toFloat(), y)
-            }
-            lineTo(size.width, size.height)
-            lineTo(0f, size.height)
-            close()
-        }
-
-    drawPath(path, color = waveColor)
 }
 
 @Composable
@@ -319,102 +271,12 @@ fun CarouselText() {
     }
 }
 
-@Composable
-fun ChatSessionList(
-    chatSessions: List<ChatSession>,
-    onSessionClick: (ChatSession) -> Unit,
-) {
-    Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-    ) {
-        Text(
-            text = "대화 목록",
-            color = BubbyGrayDark,
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-
-        if (chatSessions.isEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    text = "이전 상담 내역이 없습니다",
-                    color = BubbyGrayDark,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                )
-            }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize().padding(top = 20.dp),
-            ) {
-                items(chatSessions) { session ->
-                    ChatSessionCard(
-                        chatSession = session,
-                        onClick = { onSessionClick(session) },
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ChatSessionCard(
-    chatSession: ChatSession,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .padding(8.dp)
-                .heightIn(min = 160.dp, max = 160.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(BubbyLightOrange)
-                .clickable { onClick() }
-                .padding(16.dp),
-    ) {
-        Column {
-            Text(
-                text = chatSession.text,
-                color = Color.Black,
-                style =
-                    MaterialTheme.typography.titleLarge.copy(
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                    ),
-                maxLines = 1, // 최대 1줄로 제한
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = chatSession.firstResponse,
-                color = Color.Black,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = chatSession.timestamp,
-                color = Color.Black,
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-            )
-        }
-    }
-}
-
 @Preview
 @Composable
 fun HomeScreenPreview() {
     BubbyChatTheme {
         HomeScreen(
+            userInfo = User(email = null, displayName = null, profileImage = null),
             emptyList(),
             {},
             {},

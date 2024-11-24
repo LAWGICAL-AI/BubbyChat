@@ -14,7 +14,7 @@ interface ChatApi {
     @Headers("Accept: text/event-stream")
     suspend fun fetchStreamResponse(
         @Body input: CommonRequest,
-    ): Response<ResponseBody>
+    ): ResponseBody
 
     @POST("chat")
     suspend fun fetchChatResponse(

@@ -1,9 +1,11 @@
 package com.lawgicalai.bubbychat.data.di
 
+import com.lawgicalai.bubbychat.data.usecase.auth.GetCurrentUserUseCaseImpl
 import com.lawgicalai.bubbychat.data.usecase.token.ClearTokenUseCaseImpl
 import com.lawgicalai.bubbychat.data.usecase.token.GetTokenUseCaseImpl
 import com.lawgicalai.bubbychat.data.usecase.token.SetTokenUseCaseImpl
 import com.lawgicalai.bubbychat.domain.usecase.ClearTokenUseCase
+import com.lawgicalai.bubbychat.domain.usecase.GetCurrentUserUseCase
 import com.lawgicalai.bubbychat.domain.usecase.GetTokenUseCase
 import com.lawgicalai.bubbychat.domain.usecase.SetTokenUseCase
 import dagger.Binds
@@ -15,17 +17,14 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 abstract class UserModule {
     @Binds
-    abstract fun bindGetTokenUseCase(
-        uc: GetTokenUseCaseImpl,
-    ): GetTokenUseCase
+    abstract fun bindGetTokenUseCase(uc: GetTokenUseCaseImpl): GetTokenUseCase
 
     @Binds
-    abstract fun bindSetTokenUseCase(
-        uc: SetTokenUseCaseImpl,
-    ): SetTokenUseCase
+    abstract fun bindSetTokenUseCase(uc: SetTokenUseCaseImpl): SetTokenUseCase
 
     @Binds
-    abstract fun bindClearTokenUseCase(
-        uc: ClearTokenUseCaseImpl,
-    ): ClearTokenUseCase
+    abstract fun bindClearTokenUseCase(uc: ClearTokenUseCaseImpl): ClearTokenUseCase
+
+    @Binds
+    abstract fun bindGetCurrentUserUseCase(getCurrentUserUseCaseImpl: GetCurrentUserUseCaseImpl): GetCurrentUserUseCase
 }

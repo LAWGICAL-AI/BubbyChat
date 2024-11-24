@@ -3,7 +3,9 @@ package com.lawgicalai.bubbychat.presentation.home
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import com.lawgicalai.bubbychat.domain.model.ChatSession
+import com.lawgicalai.bubbychat.domain.model.User
 import com.lawgicalai.bubbychat.domain.usecase.GetAllChatSessionsUseCase
+import com.lawgicalai.bubbychat.domain.usecase.GetCurrentUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.firstOrNull
@@ -20,6 +22,7 @@ class HomeViewModel
     @Inject
     constructor(
         private val getAllChatSessionsUseCase: GetAllChatSessionsUseCase,
+        private val getCurrentUserUseCase: GetCurrentUserUseCase,
     ) : ViewModel(),
         ContainerHost<HomeState, HomeSideEffect> {
         override val container: Container<HomeState, HomeSideEffect> =
@@ -37,6 +40,7 @@ class HomeViewModel
 
         init {
             getAllSessions()
+            getCurrentUser()
         }
 
         fun getAllSessions() =
@@ -49,11 +53,20 @@ class HomeViewModel
                     )
                 }
             }
+
+        private fun getCurrentUser() {
+            intent {
+                getCurrentUserUseCase().firstOrNull()?.let {
+                    reduce { state.copy(userInfo = it) }
+                }
+            }
+        }
     }
 
 @Immutable
 data class HomeState(
     val sessions: List<ChatSession> = emptyList(),
+    val userInfo: User = User(email = null, displayName = null, profileImage = null),
 )
 
 sealed interface HomeSideEffect {
