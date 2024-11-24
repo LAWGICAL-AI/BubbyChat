@@ -10,8 +10,11 @@ class GetChatSessionUseCaseImpl
     constructor(
         private val chatMessageDao: ChatMessageDao,
     ) : GetChatSessionUseCase {
-        override suspend fun invoke(sessionId: Int): List<ChatMessage> =
-            chatMessageDao.getMessagesForSession(sessionId).map {
+        override suspend fun invoke(
+            sessionId: Int,
+            email: String,
+        ): List<ChatMessage> =
+            chatMessageDao.getMessagesForSession(sessionId = sessionId, email = email).map {
                 ChatMessage(text = it.text, isMine = it.isMine)
             }
     }

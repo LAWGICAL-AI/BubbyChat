@@ -134,9 +134,9 @@ fun MyPageScreen(
         Column(
             modifier =
                 Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth().padding(horizontal = 20.dp)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFFEFEFEF))
+                    .background(Color.LightGray.copy(alpha = 0.5f))
                     .padding(16.dp),
         ) {
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
