@@ -46,7 +46,7 @@ class UserDataStore
         fun getUser(): Flow<User?> =
             context.dataStore.data.map { pref ->
                 val name = pref[KEY_USER_NAME] ?: return@map null
-
+                Timber.tag(TAG).d("$pref")
                 User(
                     displayName = name,
                     email = pref[KEY_USER_EMAIL],

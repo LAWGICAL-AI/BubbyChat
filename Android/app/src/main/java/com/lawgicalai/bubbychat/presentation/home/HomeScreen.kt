@@ -13,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,8 +50,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberAsyncImagePainter
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.domain.model.ChatSession
+import com.lawgicalai.bubbychat.domain.model.User
 import com.lawgicalai.bubbychat.presentation.anim.WavyAnimation
 import com.lawgicalai.bubbychat.presentation.home.component.ChatSessionList
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
@@ -82,6 +85,7 @@ fun HomeScreen(
     }
 
     HomeScreen(
+        userInfo = state.userInfo,
         chatSessions = state.sessions,
         onSessionClick = {},
         onStartClick = onStartClick,
@@ -91,6 +95,7 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen(
+    userInfo: User,
     chatSessions: List<ChatSession>,
     onSessionClick: (ChatSession) -> Unit,
     onStartClick: () -> Unit,
@@ -153,7 +158,7 @@ private fun HomeScreen(
                     contentDescription = null,
                     modifier =
                         Modifier
-                            .size(120.dp)
+                            .size(100.dp)
                             .clip(CircleShape)
                             .border(
                                 width = 4.dp,
@@ -167,10 +172,21 @@ private fun HomeScreen(
                             .fillMaxWidth()
                             .padding(16.dp),
                 ) {
-                    Text(
-                        text = "안녕하세요, 동현님",
-                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "안녕하세요, ${userInfo.displayName}님",
+                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                        )
+                        Image(
+                            painter = rememberAsyncImagePainter(model = userInfo.profileImage),
+                            contentDescription = "profileImage",
+                            modifier = Modifier.size(32.dp).padding(start = 4.dp),
+                        )
+                    }
+
                     Text(text = "버비와 법률관련 대화를 시작해보세요", style = MaterialTheme.typography.bodyLarge)
                 }
                 CarouselText()
@@ -260,6 +276,7 @@ fun CarouselText() {
 fun HomeScreenPreview() {
     BubbyChatTheme {
         HomeScreen(
+            userInfo = User(email = null, displayName = null, profileImage = null),
             emptyList(),
             {},
             {},
