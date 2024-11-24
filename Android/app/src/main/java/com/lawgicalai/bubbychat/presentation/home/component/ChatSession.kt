@@ -1,7 +1,6 @@
 package com.lawgicalai.bubbychat.presentation.home.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.lawgicalai.bubbychat.domain.model.ChatSession
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGrayDark
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyLightOrange
+import com.lawgicalai.bubbychat.presentation.utils.noRippleClickable
 
 @Composable
 fun ChatSessionList(
@@ -148,7 +148,7 @@ fun ChatSessionCard(
                 .heightIn(min = 160.dp, max = 160.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(BubbyLightOrange)
-                .clickable { onClick() }
+                .noRippleClickable { onClick() }
                 .padding(16.dp),
     ) {
         Column {
