@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,7 +38,6 @@ import com.lawgicalai.bubbychat.presentation.anim.WavyAnimation
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkerGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGrayDark
-import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -51,6 +52,7 @@ fun MyPageScreen(myPageViewModel: MyPageViewModel) {
             is MyPageSideEffect.Toast -> {
                 Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
             }
+
             is MyPageSideEffect.Restart -> {
                 activity?.finishAffinity()
                 val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
@@ -69,11 +71,12 @@ fun MyPageScreen(
     user: User,
     onSignOutClick: () -> Unit,
 ) {
+    val uriHandler = LocalUriHandler.current
+
     Column(
         modifier =
             Modifier
-                .fillMaxSize()
-                .background(BubbyGreen.copy(alpha = 0.1f)),
+                .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box {
@@ -136,15 +139,22 @@ fun MyPageScreen(
                     .background(Color(0xFFEFEFEF))
                     .padding(16.dp),
         ) {
-            Text(
-                text = "계정 설정",
-                style =
-                    MaterialTheme.typography.titleMedium.copy(
-                        color = BubbyDarkerGreen,
-                        fontWeight = FontWeight.Bold,
-                    ),
-            )
-
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Text(
+                    modifier =
+                        Modifier.clickable {
+                            uriHandler.openUri(
+                                "https://docs.google.com/document/d/1Sl9NQqC_KApRxAfUOadV7CA3OpJ8oO3LwzZoE6NHkUY/edit?usp=sharing",
+                            )
+                        },
+                    text = "개인 정보 처리 방침",
+                    style =
+                        MaterialTheme.typography.titleMedium.copy(
+                            color = BubbyDarkerGreen,
+                            fontWeight = FontWeight.Bold,
+                        ),
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Button(
@@ -184,7 +194,12 @@ fun MyPageScreen(
 fun MyPageScreenPreview() {
     BubbyChatTheme {
         MyPageScreen(
-            user = User(email = "william.henry.harrison@example-pet-store.com", displayName = "John Doe", profileImage = null),
+            user =
+                User(
+                    email = "william.henry.harrison@example-pet-store.com",
+                    displayName = "John Doe",
+                    profileImage = null,
+                ),
             onSignOutClick = {},
         )
     }
