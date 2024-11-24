@@ -133,6 +133,14 @@ private fun HomeScreen(
                     chatSessions = chatSessions,
                     onSessionClick = onSessionClick,
                 )
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(80.dp) // BottomBar 높이
+                            .background(Color.White.copy(alpha = 0.01f))
+                            .align(Alignment.BottomCenter),
+                )
             }
         },
         sheetPeekHeight = peekHeight,
