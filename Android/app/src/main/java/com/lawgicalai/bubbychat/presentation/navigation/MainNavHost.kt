@@ -6,7 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
@@ -21,6 +25,7 @@ import com.lawgicalai.bubbychat.presentation.mypage.MyPageScreen
 import com.lawgicalai.bubbychat.presentation.mypage.MyPageViewModel
 import com.lawgicalai.bubbychat.presentation.route.ChatRoute
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
+import com.lawgicalai.bubbychat.presentation.route.Route
 
 @Composable
 fun MainNavHost(myPageViewModel: MyPageViewModel) {
@@ -28,10 +33,17 @@ fun MainNavHost(myPageViewModel: MyPageViewModel) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute =
         navBackStackEntry?.destination?.route?.let { route ->
-            // MainRoute와 ChatRoute 모두에서 찾기
             MainRoute.entries.find { it.route == route }
                 ?: ChatRoute.entries.find { it.route == route }
         } ?: MainRoute.HOME
+
+    var previousRoute by remember { mutableStateOf<Route?>(null) }
+    LaunchedEffect(currentRoute) {
+        if (previousRoute == ChatRoute.CHAT) {
+            navController.currentBackStackEntry?.savedStateHandle?.set("refresh", true)
+        }
+        previousRoute = currentRoute
+    }
 
     Scaffold(
         modifier = Modifier.background(Color.White),
