@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import com.lawgicalai.bubbychat.domain.usecase.SignInWithGoogleUseCase
-import com.lawgicalai.bubbychat.domain.usecase.SignOutUseCase
 import com.lawgicalai.bubbychat.presentation.MainActivity
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,16 +17,12 @@ class SignActivity : ComponentActivity() {
     @Inject
     lateinit var signInWithGoogleUseCase: SignInWithGoogleUseCase
 
-    @Inject
-    lateinit var signOutUseCase: SignOutUseCase
-
     private val viewModel: SignViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.initializeUseCases(
             signInWithGoogleUseCase,
-            signOutUseCase,
         )
         setContent {
             BubbyChatTheme {

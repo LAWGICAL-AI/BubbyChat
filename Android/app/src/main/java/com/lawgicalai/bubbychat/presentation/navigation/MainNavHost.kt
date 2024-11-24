@@ -17,12 +17,13 @@ import androidx.navigation.navigation
 import com.lawgicalai.bubbychat.presentation.chat.ChatScreen
 import com.lawgicalai.bubbychat.presentation.chat.PersonaScreen
 import com.lawgicalai.bubbychat.presentation.home.HomeScreen
+import com.lawgicalai.bubbychat.presentation.mypage.MyPageScreen
+import com.lawgicalai.bubbychat.presentation.mypage.MyPageViewModel
 import com.lawgicalai.bubbychat.presentation.route.ChatRoute
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
-import com.lawgicalai.bubbychat.presentation.setting.SettingScreen
 
 @Composable
-fun MainNavHost() {
+fun MainNavHost(myPageViewModel: MyPageViewModel) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute =
@@ -56,8 +57,8 @@ fun MainNavHost() {
                             }
                         })
                     }
-                    composable(route = MainRoute.SETTING.route) {
-                        SettingScreen()
+                    composable(route = MainRoute.MYPAGE.route) {
+                        MyPageScreen(myPageViewModel = myPageViewModel)
                     }
 
                     navigation(

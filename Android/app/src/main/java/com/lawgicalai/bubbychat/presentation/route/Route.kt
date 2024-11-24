@@ -14,7 +14,7 @@ enum class MainRoute(
     override val iconResId: Int,
 ) : Route {
     HOME(route = "HomeScreen", contentDescription = "홈", iconResId = R.drawable.ic_home),
-    SETTING(route = "SettingScreen", contentDescription = "내정보", iconResId = R.drawable.ic_user),
+    MYPAGE(route = "MyPageScreen", contentDescription = "내정보", iconResId = R.drawable.ic_user),
 }
 
 enum class ChatRoute(

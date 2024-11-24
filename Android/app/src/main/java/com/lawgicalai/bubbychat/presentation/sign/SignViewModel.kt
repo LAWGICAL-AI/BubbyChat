@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import com.lawgicalai.bubbychat.domain.model.User
 import com.lawgicalai.bubbychat.domain.usecase.GetCurrentUserUseCase
 import com.lawgicalai.bubbychat.domain.usecase.SignInWithGoogleUseCase
-import com.lawgicalai.bubbychat.domain.usecase.SignOutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.firstOrNull
@@ -38,14 +37,9 @@ class SignViewModel
             )
 
         private var signInWithGoogleUseCase: SignInWithGoogleUseCase? = null
-        private var signOutUseCase: SignOutUseCase? = null
 
-        fun initializeUseCases(
-            signInWithGoogleUseCase: SignInWithGoogleUseCase,
-            signOutUseCase: SignOutUseCase,
-        ) {
+        fun initializeUseCases(signInWithGoogleUseCase: SignInWithGoogleUseCase) {
             this.signInWithGoogleUseCase = signInWithGoogleUseCase
-            this.signOutUseCase = signOutUseCase
         }
 
         fun googleSignIn() {

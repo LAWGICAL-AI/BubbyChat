@@ -88,12 +88,14 @@ class AuthRepositoryImpl
 
         override suspend fun signOut(): Result<Unit> =
             try {
+                Timber.tag(TAG).d("signOut: start")
                 credentialManager.clearCredentialState(
                     request = ClearCredentialStateRequest(),
                 )
                 auth.signOut()
                 Result.success(Unit)
             } catch (e: Exception) {
+                Timber.tag(TAG).d("signOut: fail $e")
                 Result.failure(e)
             }
     }
