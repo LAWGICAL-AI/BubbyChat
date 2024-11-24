@@ -22,7 +22,7 @@ retrofit = "2.11.0"
 roomRuntime = "2.6.1"
 timber = "5.0.1"
 lottie = "6.6.0"
-
+googleServices = "4.4.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -97,3 +97,4 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+google-services = {id = "com.google.gms.google-services", version.ref="googleServices"}

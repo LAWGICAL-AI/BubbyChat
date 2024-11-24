@@ -1,9 +1,11 @@
 package com.lawgicalai.bubbychat.data.di
 
+import com.lawgicalai.bubbychat.data.usecase.auth.GetCurrentUserUseCaseImpl
 import com.lawgicalai.bubbychat.data.usecase.token.ClearTokenUseCaseImpl
 import com.lawgicalai.bubbychat.data.usecase.token.GetTokenUseCaseImpl
 import com.lawgicalai.bubbychat.data.usecase.token.SetTokenUseCaseImpl
 import com.lawgicalai.bubbychat.domain.usecase.ClearTokenUseCase
+import com.lawgicalai.bubbychat.domain.usecase.GetCurrentUserUseCase
 import com.lawgicalai.bubbychat.domain.usecase.GetTokenUseCase
 import com.lawgicalai.bubbychat.domain.usecase.SetTokenUseCase
 import dagger.Binds
@@ -22,4 +24,7 @@ abstract class UserModule {
 
     @Binds
     abstract fun bindClearTokenUseCase(uc: ClearTokenUseCaseImpl): ClearTokenUseCase
+
+    @Binds
+    abstract fun bindGetCurrentUserUseCase(getCurrentUserUseCaseImpl: GetCurrentUserUseCaseImpl): GetCurrentUserUseCase
 }
