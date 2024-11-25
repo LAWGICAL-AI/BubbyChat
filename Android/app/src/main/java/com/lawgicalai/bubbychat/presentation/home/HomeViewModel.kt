@@ -39,18 +39,19 @@ class HomeViewModel
             )
 
         init {
-            getAllSessions()
             getCurrentUser()
         }
 
         fun getAllSessions() =
             blockingIntent {
-                val sessions = getAllChatSessionsUseCase().firstOrNull() ?: emptyList()
-                Timber.tag(TAG).d("getAllSessions: $sessions")
-                reduce {
-                    state.copy(
-                        sessions = sessions,
-                    )
+                state.userInfo.email?.let { email ->
+                    val sessions = getAllChatSessionsUseCase(email).firstOrNull() ?: emptyList()
+                    Timber.tag(TAG).d("getAllSessions: $sessions")
+                    reduce {
+                        state.copy(
+                            sessions = sessions,
+                        )
+                    }
                 }
             }
 
@@ -58,6 +59,7 @@ class HomeViewModel
             intent {
                 getCurrentUserUseCase().firstOrNull()?.let {
                     reduce { state.copy(userInfo = it) }
+                    getAllSessions()
                 }
             }
         }

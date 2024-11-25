@@ -13,10 +13,10 @@ class GetAllChatSessionsUseCaseImpl
     constructor(
         private val chatMessageDao: ChatMessageDao,
     ) : GetAllChatSessionsUseCase {
-        override suspend operator fun invoke(): Flow<List<ChatSession>> =
+        override suspend operator fun invoke(email: String): Flow<List<ChatSession>> =
             flow {
                 emit(
-                    chatMessageDao.getAllSessions().map { entity ->
+                    chatMessageDao.getAllSessions(email).map { entity ->
                         ChatSession(
                             text = entity.title,
                             timestamp = entity.startTime.toString().formatToKoreanDate(),

@@ -50,6 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.domain.model.ChatSession
@@ -71,6 +72,16 @@ fun HomeScreen(
 ) {
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
+    val navController = rememberNavController()
+    LaunchedEffect(Unit) {
+        // navController 추적
+        navController.currentBackStackEntryFlow.collect { entry ->
+            if (entry.savedStateHandle.contains("refresh")) {
+                entry.savedStateHandle.remove<Boolean>("refresh")
+                viewModel.getAllSessions()
+            }
+        }
+    }
 
     viewModel.collectSideEffect {
         when (it) {
@@ -78,10 +89,6 @@ fun HomeScreen(
                 Toast.makeText(context, it.massage, Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.getAllSessions()
     }
 
     HomeScreen(
@@ -109,13 +116,34 @@ private fun HomeScreen(
         modifier = Modifier.background(Color.White),
         scaffoldState = scaffoldState,
         sheetContainerColor = Color.White,
+        sheetShadowElevation = 0.dp,
+        sheetTonalElevation = 0.dp,
+        sheetShape = RoundedCornerShape(20.dp),
         sheetContent = {
-            ChatSessionList(
-                chatSessions = chatSessions,
-                onSessionClick = onSessionClick,
-            )
+            Box(
+                modifier =
+                    Modifier
+                        // 화면 높이의 70%로 제한 (bottombar 위치까지)
+                        .height(screenHeight * 0.7f),
+            ) {
+                ChatSessionList(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(),
+                    chatSessions = chatSessions,
+                    onSessionClick = onSessionClick,
+                )
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(80.dp) // BottomBar 높이
+                            .background(Color.White.copy(alpha = 0.01f))
+                            .align(Alignment.BottomCenter),
+                )
+            }
         },
-        sheetPeekHeight = peekHeight, // minHeight BottomSheet
+        sheetPeekHeight = peekHeight,
         sheetDragHandle = {
             Box(
                 modifier =
@@ -127,7 +155,6 @@ private fun HomeScreen(
                         .width(20.dp),
             )
         },
-        sheetShadowElevation = 12.dp,
         content = { padding ->
             Column(
                 modifier =

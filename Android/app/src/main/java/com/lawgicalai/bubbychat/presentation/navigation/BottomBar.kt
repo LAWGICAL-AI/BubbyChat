@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.presentation.route.ChatRoute
@@ -33,7 +34,7 @@ fun BottomBarWithFAB(
     currentRoute: Route,
     onFabClick: () -> Unit,
 ) {
-    Box(modifier = Modifier.background(color = Color.White)) {
+    Box(modifier = Modifier.background(color = Color.Transparent).zIndex(1f)) {
         BottomBar(
             currentRoute = currentRoute,
             onItemClick = { newRoute ->

@@ -6,7 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
@@ -17,20 +21,29 @@ import androidx.navigation.navigation
 import com.lawgicalai.bubbychat.presentation.chat.ChatScreen
 import com.lawgicalai.bubbychat.presentation.chat.PersonaScreen
 import com.lawgicalai.bubbychat.presentation.home.HomeScreen
+import com.lawgicalai.bubbychat.presentation.mypage.MyPageScreen
+import com.lawgicalai.bubbychat.presentation.mypage.MyPageViewModel
 import com.lawgicalai.bubbychat.presentation.route.ChatRoute
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
-import com.lawgicalai.bubbychat.presentation.setting.SettingScreen
+import com.lawgicalai.bubbychat.presentation.route.Route
 
 @Composable
-fun MainNavHost() {
+fun MainNavHost(myPageViewModel: MyPageViewModel) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute =
         navBackStackEntry?.destination?.route?.let { route ->
-            // MainRoute와 ChatRoute 모두에서 찾기
             MainRoute.entries.find { it.route == route }
                 ?: ChatRoute.entries.find { it.route == route }
         } ?: MainRoute.HOME
+
+    var previousRoute by remember { mutableStateOf<Route?>(null) }
+    LaunchedEffect(currentRoute) {
+        if (previousRoute == ChatRoute.CHAT) {
+            navController.currentBackStackEntry?.savedStateHandle?.set("refresh", true)
+        }
+        previousRoute = currentRoute
+    }
 
     Scaffold(
         modifier = Modifier.background(Color.White),
@@ -56,8 +69,8 @@ fun MainNavHost() {
                             }
                         })
                     }
-                    composable(route = MainRoute.SETTING.route) {
-                        SettingScreen()
+                    composable(route = MainRoute.MYPAGE.route) {
+                        MyPageScreen(myPageViewModel = myPageViewModel)
                     }
 
                     navigation(

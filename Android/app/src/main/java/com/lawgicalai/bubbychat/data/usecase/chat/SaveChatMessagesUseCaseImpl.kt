@@ -13,10 +13,13 @@ class SaveChatMessagesUseCaseImpl
     constructor(
         private val chatMessageDao: ChatMessageDao,
     ) : SaveChatMessagesUseCase {
-        override suspend fun invoke(messages: List<ChatMessage>) {
+        override suspend fun invoke(
+            messages: List<ChatMessage>,
+            email: String,
+        ) {
             // 새로운 세션을 생성
             val session =
-                ChatSessionEntity(title = messages.first().text, firstResponse = messages[1].text)
+                ChatSessionEntity(title = messages.first().text, firstResponse = messages[1].text, email = email)
             val sessionId = chatMessageDao.insertSession(session).toInt()
 
             // 메시지에 sessionId 할당하여 저장
@@ -27,6 +30,7 @@ class SaveChatMessagesUseCaseImpl
                         isMine = chatMessage.isMine,
                         timestamp = LocalDateTime.now(),
                         sessionId = sessionId,
+                        email = email,
                     )
                 }
             chatMessageDao.insertMessages(messageEntities)

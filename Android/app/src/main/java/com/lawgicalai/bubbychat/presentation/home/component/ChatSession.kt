@@ -1,7 +1,6 @@
 package com.lawgicalai.bubbychat.presentation.home.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,38 +12,94 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lawgicalai.bubbychat.domain.model.ChatSession
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGrayDark
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyLightOrange
+import com.lawgicalai.bubbychat.presentation.utils.noRippleClickable
 
 @Composable
 fun ChatSessionList(
+    modifier: Modifier = Modifier,
     chatSessions: List<ChatSession>,
     onSessionClick: (ChatSession) -> Unit,
 ) {
+    val gridState = rememberLazyGridState()
+    val nestedScrollConnection =
+        remember {
+            object : NestedScrollConnection {
+                override fun onPreScroll(
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset =
+                    if (source == NestedScrollSource.Drag) {
+                        // 스크롤이 최상단이고 위로 드래그하는 경우
+                        if (gridState.firstVisibleItemIndex == 0 && available.y > 0) {
+                            Offset.Zero // 부모에게 스크롤 이벤트 전달
+                        } else if (!gridState.canScrollForward && available.y < 0) {
+                            // 스크롤이 최하단이고 아래로 드래그하는 경우
+                            Offset.Zero // 부모에게 스크롤 이벤트 전달
+                        } else {
+                            // 그 외의 경우 자식이 스크롤 이벤트 처리
+                            available.copy(x = 0f)
+                        }
+                    } else {
+                        Offset.Zero
+                    }
+
+                override suspend fun onPreFling(available: Velocity): Velocity {
+                    // fling 동작 처리
+                    return if (gridState.firstVisibleItemIndex == 0 && available.y > 0) {
+                        available // 최상단에서 위로 플링하는 경우 부모에게 전달
+                    } else if (!gridState.canScrollForward && available.y < 0) {
+                        available // 최하단에서 아래로 플링하는 경우 부모에게 전달
+                    } else {
+                        Velocity.Zero // 그 외에는 자식이 처리
+                    }
+                }
+
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity,
+                ): Velocity {
+                    return available // 남은 fling 속도를 부모에게 전달
+                }
+            }
+        }
+
     Column(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
     ) {
         Text(
             text = "대화 목록",
             color = BubbyGrayDark,
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(bottom = 8.dp),
+            style =
+                MaterialTheme.typography.titleLarge.copy(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                ),
+            modifier = Modifier.padding(bottom = 4.dp),
         )
 
         if (chatSessions.isEmpty()) {
@@ -63,7 +118,12 @@ fun ChatSessionList(
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize().padding(top = 20.dp),
+                state = gridState,
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(top = 12.dp)
+                        .nestedScroll(nestedScrollConnection),
             ) {
                 items(chatSessions) { session ->
                     ChatSessionCard(
@@ -88,7 +148,7 @@ fun ChatSessionCard(
                 .heightIn(min = 160.dp, max = 160.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(BubbyLightOrange)
-                .clickable { onClick() }
+                .noRippleClickable { onClick() }
                 .padding(16.dp),
     ) {
         Column {

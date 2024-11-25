@@ -4,7 +4,9 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lawgicalai.bubbychat.domain.model.ChatMessage
+import com.lawgicalai.bubbychat.domain.model.User
 import com.lawgicalai.bubbychat.domain.usecase.GetChatResponseStreamUseCase
+import com.lawgicalai.bubbychat.domain.usecase.GetCurrentUserUseCase
 import com.lawgicalai.bubbychat.domain.usecase.SaveChatMessagesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.ktor.client.network.sockets.SocketTimeoutException
@@ -24,6 +26,7 @@ private const val TAG = "MainViewModel"
 class ChatViewModel
     @Inject
     constructor(
+        private val getCurrentUserUseCase: GetCurrentUserUseCase,
         private val getChatResponseStreamUseCase: GetChatResponseStreamUseCase,
         private val saveChatMessagesUseCase: SaveChatMessagesUseCase,
     ) : ViewModel(),
@@ -40,6 +43,10 @@ class ChatViewModel
                         }
                 },
             )
+
+        init {
+            getCurrentUser()
+        }
 
         fun getResponse(question: String) =
             intent {
@@ -121,6 +128,7 @@ class ChatViewModel
                 if (state.messages.size > 1 && state.messages[1].text.length > 6) {
                     saveChatMessagesUseCase(
                         state.messages,
+                        state.userInfo.email.orEmpty(),
                     )
                 }
                 reduce {
@@ -143,10 +151,20 @@ class ChatViewModel
             intent {
                 reduce { state.copy(personaType = personaType) }
             }
+
+        fun getCurrentUser() =
+            intent {
+                getCurrentUserUseCase().collect { user ->
+                    user?.let {
+                        reduce { state.copy(userInfo = user) }
+                    }
+                }
+            }
     }
 
 @Immutable
 data class ChatState(
+    val userInfo: User = User(email = null, displayName = null, profileImage = null),
     val input: String = "",
     val messages: List<ChatMessage> = emptyList(),
     val isResponseComplete: Boolean = false,
