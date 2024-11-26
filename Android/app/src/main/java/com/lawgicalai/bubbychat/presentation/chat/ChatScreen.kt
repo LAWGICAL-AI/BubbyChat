@@ -59,8 +59,11 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.lawgicalai.bubbychat.R
 import com.lawgicalai.bubbychat.domain.model.ChatMessage
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
+import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyLightOrange
+import com.lawgicalai.bubbychat.presentation.ui.theme.Typography
+import com.lawgicalai.bubbychat.presentation.utils.noRippleClickable
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 import timber.log.Timber
@@ -68,7 +71,10 @@ import timber.log.Timber
 private const val TAG = "ChatScreen"
 
 @Composable
-fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
+fun ChatScreen(
+    viewModel: ChatViewModel = hiltViewModel(),
+    onNavigateToPrecedentScreen: () -> Unit,
+) {
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
@@ -102,6 +108,7 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
             ttsManager.speak(it)
             isDialogVisible = true
         },
+        onNavigateToPrecedentScreen = onNavigateToPrecedentScreen,
     )
 
     val composition by rememberLottieComposition(
@@ -165,6 +172,7 @@ private fun ChatScreen(
     isResponseComplete: Boolean,
     resetResponse: () -> Unit,
     onLongClickSpeak: (String) -> Unit,
+    onNavigateToPrecedentScreen: () -> Unit,
 ) {
     val listState = rememberLazyListState()
     val focusManager = LocalFocusManager.current
@@ -203,7 +211,11 @@ private fun ChatScreen(
                 state = listState,
             ) {
                 items(messages) { message ->
-                    ChatBubble(message, onLongClickSpeak)
+                    ChatBubble(
+                        message,
+                        onLongClickSpeak,
+                        onNavigateToPrecedentScreen = onNavigateToPrecedentScreen,
+                    )
                 }
             }
             InputTextField(
@@ -315,28 +327,70 @@ fun InputTextField(
 fun ChatBubble(
     message: ChatMessage,
     onLongClickSpeak: (String) -> Unit,
+    onNavigateToPrecedentScreen: () -> Unit,
 ) {
     val backgroundColor = if (message.isMine) BubbyLightOrange else BubbyGreen
-
-    Row(
+    Column(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-        horizontalArrangement = if (message.isMine) Arrangement.End else Arrangement.Start,
+        horizontalAlignment = if (message.isMine) Alignment.End else Alignment.Start,
     ) {
-        Box(
+        Row(
             modifier =
                 Modifier
-                    .background(backgroundColor, shape = RoundedCornerShape(12.dp))
-                    .padding(8.dp)
-                    .widthIn(max = 250.dp)
-                    .clickable {
-                        onLongClickSpeak(message.text) // 길게 누르면 speak 호출
-                    },
+                    .fillMaxWidth(),
+            horizontalArrangement = if (message.isMine) Arrangement.End else Arrangement.Start,
         ) {
-            Text(text = message.text, fontSize = 16.sp)
+            Box(
+                modifier =
+                    Modifier
+                        .background(backgroundColor, shape = RoundedCornerShape(12.dp))
+                        .padding(8.dp)
+                        .widthIn(max = 250.dp)
+                        .clickable {
+                            onLongClickSpeak(message.text) // 길게 누르면 speak 호출
+                        },
+            ) {
+                Text(text = message.text, fontSize = 16.sp)
+            }
         }
+
+        if (!message.isMine) {
+            // 이건 조건 하나 더 달아아 됨 -> 판례데이터를 가져오는 데 성공했다면
+            Row(
+                modifier =
+                    Modifier
+                        .padding(top = 4.dp),
+                // 버튼 그룹의 최대 너비 제한
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                NavigationButton(
+                    onClick = onNavigateToPrecedentScreen,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun NavigationButton(onClick: () -> Unit) {
+    Box(
+        modifier =
+            Modifier
+                .background(
+                    color = BubbyDarkGreen,
+                    shape = RoundedCornerShape(8.dp),
+                ).noRippleClickable(onClick = onClick)
+                .padding(vertical = 8.dp, horizontal = 8.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = "↪ 자세히 알아보기",
+            color = Color.Black,
+            style = Typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+        )
     }
 }
 
@@ -353,6 +407,19 @@ fun ChatScreenPreview() {
             isResponseComplete = false,
             resetResponse = {},
             onLongClickSpeak = {},
+            onNavigateToPrecedentScreen = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ChatBubblePreview() {
+    BubbyChatTheme {
+        ChatBubble(
+            message = ChatMessage(text = "ffffffffffffffff", isMine = false),
+            onLongClickSpeak = {},
+            onNavigateToPrecedentScreen = {},
         )
     }
 }

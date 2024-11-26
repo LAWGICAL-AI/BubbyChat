@@ -1,4 +1,4 @@
-package com.lawgicalai.bubbychat.presentation.precedent
+package com.lawgicalai.bubbychat.presentation.chat
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,8 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -35,13 +33,13 @@ import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
 fun PrecedentDetailScreen(
-    viewModel: PrecedentViewModel = hiltViewModel(),
+    viewModel: ChatViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
 ) {
     val state = viewModel.collectAsState().value
 
     PrecedentDetailScreen(
-        onBackClick = {},
+        onBackClick = onBackClick,
         precedent =
             Precedent(
                 id = "legere",
@@ -67,17 +65,18 @@ private fun PrecedentDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                colors = TopAppBarColors(
-                    containerColor = BubbyGreen,
-                    scrolledContainerColor = BubbyGreen,
-                    navigationIconContentColor = Color.Black,
-                    titleContentColor = Color.Black,
-                    actionIconContentColor = BubbyGreen
-                ),
+                colors =
+                    TopAppBarColors(
+                        containerColor = BubbyGreen,
+                        scrolledContainerColor = BubbyGreen,
+                        navigationIconContentColor = Color.Black,
+                        titleContentColor = Color.Black,
+                        actionIconContentColor = BubbyGreen,
+                    ),
                 title = { Text(precedent.title) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, "뒤로가기")
+                        Icon(Icons.Default.KeyboardArrowLeft, "뒤로가기")
                     }
                 },
             )
@@ -190,17 +189,21 @@ private fun InfoRow(
 @Composable
 fun PrecedentDetailScreenPreview() {
     BubbyChatTheme {
-        PrecedentDetailScreen(onBackClick = {}, precedent = Precedent(
-            id = "prompta",
-            title = "tota",
-            court = "idque",
-            caseNumber = "unum",
-            date = "conubia",
-            summary = "oratio",
-            content = "mus",
-            category = "nibh",
-            relatedLaws = listOf(),
-            keywords = listOf()
-        ))
+        PrecedentDetailScreen(
+            onBackClick = {},
+            precedent =
+                Precedent(
+                    id = "prompta",
+                    title = "tota",
+                    court = "idque",
+                    caseNumber = "unum",
+                    date = "conubia",
+                    summary = "oratio",
+                    content = "mus",
+                    category = "nibh",
+                    relatedLaws = listOf(),
+                    keywords = listOf(),
+                ),
+        )
     }
 }

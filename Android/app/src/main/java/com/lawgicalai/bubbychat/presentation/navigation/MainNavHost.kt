@@ -23,6 +23,7 @@ import com.lawgicalai.bubbychat.presentation.chat.PersonaScreen
 import com.lawgicalai.bubbychat.presentation.home.HomeScreen
 import com.lawgicalai.bubbychat.presentation.mypage.MyPageScreen
 import com.lawgicalai.bubbychat.presentation.mypage.MyPageViewModel
+import com.lawgicalai.bubbychat.presentation.chat.PrecedentDetailScreen
 import com.lawgicalai.bubbychat.presentation.route.ChatRoute
 import com.lawgicalai.bubbychat.presentation.route.MainRoute
 import com.lawgicalai.bubbychat.presentation.route.Route
@@ -78,11 +79,21 @@ fun MainNavHost(myPageViewModel: MyPageViewModel) {
                         route = "chat",
                     ) {
                         composable(route = ChatRoute.CHAT.route) {
-                            ChatScreen()
+                            ChatScreen(onNavigateToPrecedentScreen = {
+                                navController.navigate(ChatRoute.DETAIL.route)
+                            })
+                        }
+                        composable(route = ChatRoute.DETAIL.route) {
+                            PrecedentDetailScreen(onBackClick = {
+                                navController.navigateUp()
+                            })
                         }
                         composable(route = ChatRoute.PERSONA.route) {
                             PersonaScreen(onPersonaSelected = {
                                 navController.navigate(ChatRoute.CHAT.route) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
                                     launchSingleTop = true
                                     restoreState = true
                                 }

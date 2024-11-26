@@ -24,12 +24,5 @@ enum class ChatRoute(
 ) : Route {
     PERSONA(route = "PersonaScreen", contentDescription = "페르소나", iconResId = R.drawable.ic_send),
     CHAT(route = "ChatScreen", contentDescription = "채팅", iconResId = R.drawable.ic_send),
-}
-
-enum class PrecedentRoute(
-    val route: String,
-    val contentDescription: String,
-) {
-    LIST("PrecedentListScreen", "판례 목록"),
-    DETAIL("PrecedentDetailScreen", "판례 상세"),
+    DETAIL("PrecedentDetailScreen", "판례 상세", iconResId = R.drawable.ic_send),
 }
