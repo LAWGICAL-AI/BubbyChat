@@ -18,21 +18,27 @@ class SaveChatMessagesUseCaseImpl
             email: String,
         ) {
             // 새로운 세션을 생성
-            val session =
-                ChatSessionEntity(title = messages.first().text, firstResponse = messages[1].text, email = email)
-            val sessionId = chatMessageDao.insertSession(session).toInt()
-
-            // 메시지에 sessionId 할당하여 저장
-            val messageEntities =
-                messages.map { chatMessage ->
-                    ChatMessageEntity(
-                        text = chatMessage.text,
-                        isMine = chatMessage.isMine,
-                        timestamp = LocalDateTime.now(),
-                        sessionId = sessionId,
+            if (!messages[1].text.contains("오류가 발생했습니다")) {
+                val session =
+                    ChatSessionEntity(
+                        title = messages.first().text,
+                        firstResponse = messages[1].text,
                         email = email,
                     )
-                }
-            chatMessageDao.insertMessages(messageEntities)
+                val sessionId = chatMessageDao.insertSession(session).toInt()
+
+                // 메시지에 sessionId 할당하여 저장
+                val messageEntities =
+                    messages.map { chatMessage ->
+                        ChatMessageEntity(
+                            text = chatMessage.text,
+                            isMine = chatMessage.isMine,
+                            timestamp = LocalDateTime.now(),
+                            sessionId = sessionId,
+                            email = email,
+                        )
+                    }
+                chatMessageDao.insertMessages(messageEntities)
+            }
         }
     }

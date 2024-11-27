@@ -71,9 +71,7 @@ import timber.log.Timber
 private const val TAG = "ChatScreen"
 
 @Composable
-fun ChatScreen(
-    viewModel: ChatViewModel = hiltViewModel(),
-) {
+fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
@@ -160,7 +158,7 @@ fun ChatScreen(
                     modifier =
                         Modifier.clickable {
                             isDialogVisible = false
-                            ttsManager.stop() // 확인 버튼 클릭 시 TTS 중지
+                            ttsManager.stop()
                         },
                 )
             },

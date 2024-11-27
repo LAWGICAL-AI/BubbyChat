@@ -12,14 +12,17 @@ import com.lawgicalai.bubbychat.domain.usecase.SaveChatMessagesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.ktor.client.network.sockets.SocketTimeoutException
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 private const val TAG = "MainViewModel"
 
@@ -49,28 +52,43 @@ class ChatViewModel
             getCurrentUser()
         }
 
+        private var dotsJob: Job? = null
+
+        private fun cancelDots() {
+            dotsJob?.let { job ->
+                if (job.isActive) {
+                    job.cancel()
+                }
+            }
+            dotsJob = null
+        }
+
         fun getResponse(question: String) =
             intent {
+                cancelDots()
                 reduce { state.copy(messages = state.messages + ChatMessage(question, isMine = true)) }
                 reduce { state.copy(input = "") }
 
-                // 상대방 응답 대기 중임을 표시하기 위해 '...' 메시지를 추가
                 val initialResponseIndex = state.messages.size
                 reduce { state.copy(messages = state.messages + ChatMessage("...", isMine = false)) }
 
-                // '...'을 능동적으로 변하게 하는 Job 시작
-                val dotsJob =
+                dotsJob =
                     viewModelScope.launch {
-                        while (true) {
-                            delay(500) // 0.5초마다 갱신
-                            val updatedMessages = state.messages.toMutableList()
-                            val dotsMessage = updatedMessages[initialResponseIndex].text
-
-                            // '...', '......'을 번갈아가며 보여줌
-                            val newDotsMessage = if (dotsMessage.length >= 6) "." else dotsMessage + "."
-                            updatedMessages[initialResponseIndex] =
-                                ChatMessage(newDotsMessage, isMine = false)
-                            reduce { state.copy(messages = updatedMessages) }
+                        try {
+                            while (isActive) {
+                                delay(500)
+                                val updatedMessages = state.messages.toMutableList()
+                                val dotsMessage = updatedMessages[initialResponseIndex].text
+                                val newDotsMessage =
+                                    if (dotsMessage.length >= 6) "." else "$dotsMessage."
+                                updatedMessages[initialResponseIndex] =
+                                    ChatMessage(newDotsMessage, isMine = false)
+                                reduce { state.copy(messages = updatedMessages) }
+                            }
+                        } catch (e: CancellationException) {
+                            // 코루틴 취소는 정상적인 흐름이므로 별도 처리 없이 종료
+                        } finally {
+                            // cleanup 코드가 필요한 경우 여기에 작성
                         }
                     }
 
@@ -78,7 +96,7 @@ class ChatViewModel
                     .onEach { response ->
                         response
                             .onSuccess { data ->
-                                dotsJob.cancel()
+                                cancelDots()
                                 val updatedMessages = state.messages.toMutableList()
                                 // 첫 번째 응답이 도착하면 '...' 메시지를 대체하여 응답 표시
                                 if (updatedMessages[initialResponseIndex].text.startsWith(".")) {
@@ -93,13 +111,8 @@ class ChatViewModel
                                 }
 
                                 reduce { state.copy(messages = updatedMessages) }
-
-//                                if (data.is)
-//                                    {
-//                                        reduce { state.copy(isResponseComplete = true) }
-//                                    }
                             }.onFailure {
-                                dotsJob.cancel()
+                                cancelDots()
                                 val errorMessage =
                                     if (it is SocketTimeoutException) {
                                         "응답 시간이 초과되었습니다"
@@ -175,6 +188,17 @@ class ChatViewModel
                     state.copy(isShowDialog = false)
                 }
             }
+
+        fun clean() =
+            intent {
+                cancelDots()
+                saveMessages()
+            }
+
+        override fun onCleared() {
+            super.onCleared()
+            clean()
+        }
     }
 
 @Immutable
