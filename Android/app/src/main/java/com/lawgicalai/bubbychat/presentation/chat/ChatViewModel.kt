@@ -53,6 +53,7 @@ class ChatViewModel
         }
 
         private var dotsJob: Job? = null
+        private var streamJob: Job? = null
 
         private fun cancelDots() {
             dotsJob?.let { job ->
@@ -65,6 +66,7 @@ class ChatViewModel
 
         fun getResponse(question: String) =
             intent {
+                streamJob?.cancel()
                 cancelDots()
                 reduce { state.copy(messages = state.messages + ChatMessage(question, isMine = true)) }
                 reduce { state.copy(input = "") }
@@ -77,13 +79,19 @@ class ChatViewModel
                         try {
                             while (isActive) {
                                 delay(500)
-                                val updatedMessages = state.messages.toMutableList()
-                                val dotsMessage = updatedMessages[initialResponseIndex].text
-                                val newDotsMessage =
-                                    if (dotsMessage.length >= 6) "." else "$dotsMessage."
-                                updatedMessages[initialResponseIndex] =
-                                    ChatMessage(newDotsMessage, isMine = false)
-                                reduce { state.copy(messages = updatedMessages) }
+                                reduce {
+                                    val updatedMessages = state.messages.toMutableList()
+                                    if (initialResponseIndex < updatedMessages.size) {
+                                        val dotsMessage = updatedMessages[initialResponseIndex].text
+                                        val newDotsMessage =
+                                            if (dotsMessage.length >= 6) "." else "$dotsMessage."
+                                        updatedMessages[initialResponseIndex] =
+                                            ChatMessage(newDotsMessage, isMine = false)
+                                        state.copy(messages = updatedMessages)
+                                    } else {
+                                        state
+                                    }
+                                }
                             }
                         } catch (e: CancellationException) {
                             // 코루틴 취소는 정상적인 흐름이므로 별도 처리 없이 종료
@@ -97,22 +105,37 @@ class ChatViewModel
                         response
                             .onSuccess { data ->
                                 cancelDots()
-                                val updatedMessages = state.messages.toMutableList()
-                                // 첫 번째 응답이 도착하면 '...' 메시지를 대체하여 응답 표시
-                                if (updatedMessages[initialResponseIndex].text.startsWith(".")) {
-                                    updatedMessages[initialResponseIndex] =
-                                        ChatMessage(data, isMine = false)
-                                } else {
-                                    // 이후 데이터는 기존 메시지에 덧붙이기
-                                    val currentResponse =
-                                        updatedMessages[initialResponseIndex].text + data
-                                    updatedMessages[initialResponseIndex] =
-                                        ChatMessage(currentResponse, isMine = false)
+                                reduce {
+                                    val updatedMessages = state.messages.toMutableList()
+                                    // 인덱스가 유효한지 안전하게 확인합니다
+                                    if (initialResponseIndex < updatedMessages.size) {
+                                        val currentMessage = updatedMessages[initialResponseIndex]
+                                        val newContent =
+                                            if (currentMessage.text.startsWith(".")) {
+                                                // 첫 응답이면 로딩 점들을 대체합니다
+                                                data
+                                            } else {
+                                                // 기존 응답에 추가합니다
+                                                currentMessage.text + data
+                                            }
+                                        updatedMessages[initialResponseIndex] =
+                                            ChatMessage(newContent, isMine = false)
+                                        state.copy(messages = updatedMessages)
+                                    } else {
+                                        // 인덱스가 유효하지 않다면 새 메시지로 추가합니다
+                                        state.copy(
+                                            messages =
+                                                state.messages +
+                                                    ChatMessage(
+                                                        data,
+                                                        isMine = false,
+                                                    ),
+                                        )
+                                    }
                                 }
-
-                                reduce { state.copy(messages = updatedMessages) }
                             }.onFailure {
                                 cancelDots()
+                                streamJob = null
                                 val errorMessage =
                                     if (it is SocketTimeoutException) {
                                         "응답 시간이 초과되었습니다"
@@ -120,13 +143,23 @@ class ChatViewModel
                                         "오류가 발생했습니다. 다시 시도해주세요"
                                     }
 
-                                val updatedMessages =
-                                    state.messages.toMutableList().apply {
-                                        this[initialResponseIndex] =
+                                reduce {
+                                    val updatedMessages = state.messages.toMutableList()
+                                    if (initialResponseIndex < updatedMessages.size) {
+                                        updatedMessages[initialResponseIndex] =
                                             ChatMessage(errorMessage, isMine = false)
+                                        state.copy(messages = updatedMessages)
+                                    } else {
+                                        state.copy(
+                                            messages =
+                                                state.messages +
+                                                    ChatMessage(
+                                                        errorMessage,
+                                                        isMine = false,
+                                                    ),
+                                        )
                                     }
-
-                                reduce { state.copy(messages = updatedMessages) }
+                                }
                                 postSideEffect(ChatSideEffect.Toast("예외 발생: ${it.message}"))
                             }
                     }.launchIn(viewModelScope)
@@ -192,6 +225,7 @@ class ChatViewModel
         fun clean() =
             intent {
                 cancelDots()
+                streamJob?.cancel()
                 saveMessages()
             }
 
