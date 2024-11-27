@@ -73,7 +73,6 @@ private const val TAG = "ChatScreen"
 @Composable
 fun ChatScreen(
     viewModel: ChatViewModel = hiltViewModel(),
-    onNavigateToPrecedentScreen: () -> Unit,
 ) {
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
@@ -86,6 +85,13 @@ fun ChatScreen(
                 Toast.makeText(context, it.massage, Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    if (state.isShowDialog) {
+        PrecedentDetailDialog(
+            onDismiss = viewModel::hidePrecedentDetail,
+            precedent = state.selectedPrecedent,
+        )
     }
 
     DisposableEffect(Unit) {
@@ -108,7 +114,7 @@ fun ChatScreen(
             ttsManager.speak(it)
             isDialogVisible = true
         },
-        onNavigateToPrecedentScreen = onNavigateToPrecedentScreen,
+        onNavigateToPrecedentScreen = viewModel::showPrecedentDetail,
     )
 
     val composition by rememberLottieComposition(

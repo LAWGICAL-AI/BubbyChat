@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lawgicalai.bubbychat.domain.model.ChatMessage
+import com.lawgicalai.bubbychat.domain.model.Precedent
 import com.lawgicalai.bubbychat.domain.model.User
 import com.lawgicalai.bubbychat.domain.usecase.GetChatResponseStreamUseCase
 import com.lawgicalai.bubbychat.domain.usecase.GetCurrentUserUseCase
@@ -152,12 +153,26 @@ class ChatViewModel
                 reduce { state.copy(personaType = personaType) }
             }
 
-        fun getCurrentUser() =
+        private fun getCurrentUser() =
             intent {
                 getCurrentUserUseCase().collect { user ->
                     user?.let {
                         reduce { state.copy(userInfo = user) }
                     }
+                }
+            }
+
+        fun showPrecedentDetail() =
+            intent {
+                reduce {
+                    state.copy(isShowDialog = true)
+                }
+            }
+
+        fun hidePrecedentDetail() =
+            intent {
+                reduce {
+                    state.copy(isShowDialog = false)
                 }
             }
     }
@@ -169,6 +184,20 @@ data class ChatState(
     val messages: List<ChatMessage> = emptyList(),
     val isResponseComplete: Boolean = false,
     val personaType: String = "friendly",
+    val isShowDialog: Boolean = false,
+    val selectedPrecedent: Precedent =
+        Precedent(
+            id = "natum",
+            title = "mus",
+            court = "finibus",
+            caseNumber = "posidonium",
+            date = "quem",
+            summary = "reprimique",
+            content = "massa",
+            category = "iriure",
+            relatedLaws = listOf(),
+            keywords = listOf(),
+        ),
 )
 
 sealed interface ChatSideEffect {
