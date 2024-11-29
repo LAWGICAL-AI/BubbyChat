@@ -14,6 +14,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
 import javax.inject.Inject
 
+private const val TAG = "GetChatResponseStreamUs"
+
 class GetChatResponseStreamUseCaseImpl
     @Inject
     constructor(
@@ -30,7 +32,7 @@ class GetChatResponseStreamUseCaseImpl
                         .header("Accept", "text/event-stream")
                         .post(CommonRequest(input).toRequestBody())
                         .build()
-
+                Timber.tag(TAG).d("$request")
                 val call = client.newCall(request)
 
                 try {

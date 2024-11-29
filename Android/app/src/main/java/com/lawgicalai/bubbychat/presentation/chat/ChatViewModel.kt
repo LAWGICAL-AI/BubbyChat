@@ -4,10 +4,11 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lawgicalai.bubbychat.domain.model.ChatMessage
-import com.lawgicalai.bubbychat.domain.model.Precedent
+import com.lawgicalai.bubbychat.domain.model.PrecedentBody
 import com.lawgicalai.bubbychat.domain.model.User
 import com.lawgicalai.bubbychat.domain.usecase.GetChatResponseStreamUseCase
 import com.lawgicalai.bubbychat.domain.usecase.GetCurrentUserUseCase
+import com.lawgicalai.bubbychat.domain.usecase.GetPrecedentResponseUseCase
 import com.lawgicalai.bubbychat.domain.usecase.SaveChatMessagesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.ktor.client.network.sockets.SocketTimeoutException
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -32,6 +34,7 @@ class ChatViewModel
     constructor(
         private val getCurrentUserUseCase: GetCurrentUserUseCase,
         private val getChatResponseStreamUseCase: GetChatResponseStreamUseCase,
+        private val getPrecedentResponseUseCase: GetPrecedentResponseUseCase,
         private val saveChatMessagesUseCase: SaveChatMessagesUseCase,
     ) : ViewModel(),
         ContainerHost<ChatState, ChatSideEffect> {
@@ -64,9 +67,24 @@ class ChatViewModel
             dotsJob = null
         }
 
-        fun getResponse(question: String) =
+        fun getResponse(question: String) {
+            getChatResponse(question)
+//            getPrecedentResponse(question)
+        }
+
+        private fun getPrecedentResponse(question: String) =
             intent {
-                streamJob?.cancel()
+                getPrecedentResponseUseCase(question)
+                    .onEach { data ->
+                        Timber.tag(TAG).d("$data")
+                        reduce {
+                            state.copy(selectedPrecedent = data.getOrNull()?.precedent ?: emptyList())
+                        }
+                    }.launchIn(viewModelScope)
+            }
+
+        private fun getChatResponse(question: String) =
+            intent {
                 cancelDots()
                 reduce { state.copy(messages = state.messages + ChatMessage(question, isMine = true)) }
                 reduce { state.copy(input = "") }
@@ -105,6 +123,7 @@ class ChatViewModel
                         response
                             .onSuccess { data ->
                                 cancelDots()
+                                getPrecedentResponse(question)
                                 reduce {
                                     val updatedMessages = state.messages.toMutableList()
                                     // 인덱스가 유효한지 안전하게 확인합니다
@@ -135,7 +154,6 @@ class ChatViewModel
                                 }
                             }.onFailure {
                                 cancelDots()
-                                streamJob = null
                                 val errorMessage =
                                     if (it is SocketTimeoutException) {
                                         "응답 시간이 초과되었습니다"
@@ -241,21 +259,9 @@ data class ChatState(
     val input: String = "",
     val messages: List<ChatMessage> = emptyList(),
     val isResponseComplete: Boolean = false,
-    val personaType: String = "friendly",
+    val personaType: String = "",
     val isShowDialog: Boolean = false,
-    val selectedPrecedent: Precedent =
-        Precedent(
-            id = "natum",
-            title = "mus",
-            court = "finibus",
-            caseNumber = "posidonium",
-            date = "quem",
-            summary = "reprimique",
-            content = "massa",
-            category = "iriure",
-            relatedLaws = listOf(),
-            keywords = listOf(),
-        ),
+    val selectedPrecedent: List<PrecedentBody.Precedent> = emptyList(),
 )
 
 sealed interface ChatSideEffect {

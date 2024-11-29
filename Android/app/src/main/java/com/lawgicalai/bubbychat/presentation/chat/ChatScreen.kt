@@ -37,7 +37,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
@@ -71,7 +70,7 @@ import timber.log.Timber
 private const val TAG = "ChatScreen"
 
 @Composable
-fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
+fun ChatScreen(viewModel: ChatViewModel) {
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
@@ -83,6 +82,10 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
                 Toast.makeText(context, it.massage, Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        Timber.tag(TAG).d(state.personaType)
     }
 
     if (state.isShowDialog) {
@@ -219,6 +222,7 @@ private fun ChatScreen(
                         message,
                         onLongClickSpeak,
                         onNavigateToPrecedentScreen = onNavigateToPrecedentScreen,
+                        personaType,
                     )
                 }
             }
@@ -332,6 +336,7 @@ fun ChatBubble(
     message: ChatMessage,
     onLongClickSpeak: (String) -> Unit,
     onNavigateToPrecedentScreen: () -> Unit,
+    personaType: String,
 ) {
     val backgroundColor = if (message.isMine) BubbyLightOrange else BubbyGreen
     Column(
@@ -424,6 +429,7 @@ fun ChatBubblePreview() {
             message = ChatMessage(text = "ffffffffffffffff", isMine = false),
             onLongClickSpeak = {},
             onNavigateToPrecedentScreen = {},
+            personaType = "expert",
         )
     }
 }

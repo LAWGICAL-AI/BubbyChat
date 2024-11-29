@@ -51,20 +51,27 @@ import com.lawgicalai.bubbychat.presentation.utils.noRippleClickable
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
+
+private const val TAG = "PersonaScreen"
 
 @Composable
 fun PersonaScreen(
     viewModel: ChatViewModel = hiltViewModel(),
     onPersonaSelected: () -> Unit,
 ) {
-    PersonaScreen(onPersonaSelected = { personaType ->
+    PersonaScreen(onSavePersona = viewModel::selectPersona, onPersonaSelected = { personaType ->
+        Timber.tag(TAG).d("personaType: $personaType")
         viewModel.selectPersona(personaType)
         onPersonaSelected()
     })
 }
 
 @Composable
-private fun PersonaScreen(onPersonaSelected: (String) -> Unit) {
+private fun PersonaScreen(
+    onSavePersona: (String) -> Unit,
+    onPersonaSelected: (String) -> Unit,
+) {
     val personas =
         listOf(
             Persona(type = "friendly", name = "가벼운 상담", description = "일반적인 법률 상담을 진행합니다"),
@@ -128,9 +135,10 @@ private fun PersonaScreen(onPersonaSelected: (String) -> Unit) {
                                 this.alpha = alpha
                             },
                     onPersonaSelected = {
+                        onSavePersona(persona.type)
                         selectedPersona = persona.type
                         coroutineScope.launch {
-                            delay(300) // 애니메이션 시간만큼 대기
+                            delay(300)
                         }
                     },
                 )
@@ -140,7 +148,10 @@ private fun PersonaScreen(onPersonaSelected: (String) -> Unit) {
 
         Button(
             onClick = {
-                selectedPersona?.let { onPersonaSelected(it) } ?: run {
+                selectedPersona?.let {
+                    onSavePersona(it)
+                    onPersonaSelected(it)
+                } ?: run {
                     Toast.makeText(context, "상담 유형을 선택해주세요", Toast.LENGTH_SHORT).show()
                 }
             },
@@ -182,11 +193,20 @@ fun PersonaCard(
                 .fillMaxWidth()
                 .background(Color.White)
                 .aspectRatio(1f)
-                .noRippleClickable { onPersonaSelected() },
+                .noRippleClickable {
+                    onPersonaSelected()
+                },
         shape = CircleShape,
         colors =
             CardDefaults.cardColors(
-                containerColor = if (isSelected) BubbyDarkerGreen.copy(alpha = 0.8f) else BubbyGreen.copy(alpha = 0.1f),
+                containerColor =
+                    if (isSelected) {
+                        BubbyDarkerGreen.copy(alpha = 0.8f)
+                    } else {
+                        BubbyGreen.copy(
+                            alpha = 0.1f,
+                        )
+                    },
             ),
     ) {
         Column(
@@ -206,7 +226,7 @@ fun PersonaCard(
                         fontWeight = FontWeight.ExtraBold,
                     ),
                 textAlign = TextAlign.Center,
-                color = if (isSelected) Color.White  else Color.Black
+                color = if (isSelected) Color.White else Color.Black,
             )
             Box(modifier = Modifier.size(48.dp)) {
                 Image(
@@ -220,7 +240,7 @@ fun PersonaCard(
                 style =
                     MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
-                color = if (isSelected) Color.White  else Color.Gray
+                color = if (isSelected) Color.White else Color.Gray,
             )
         }
     }
@@ -230,7 +250,7 @@ fun PersonaCard(
 @Composable
 fun PersonaScreenPreview() {
     BubbyChatTheme {
-        PersonaScreen(onPersonaSelected = { it -> })
+        PersonaScreen(onSavePersona = {}, onPersonaSelected = { it -> })
     }
 }
 
@@ -238,6 +258,10 @@ fun PersonaScreenPreview() {
 @Composable
 fun PersonaScreenPreview2() {
     BubbyChatTheme {
-        PersonaCard(persona = Persona("friendly", "friendly", "friendly"), isSelected = true, onPersonaSelected = {})
+        PersonaCard(
+            persona = Persona("friendly", "friendly", "friendly"),
+            isSelected = true,
+            onPersonaSelected = {},
+        )
     }
 }

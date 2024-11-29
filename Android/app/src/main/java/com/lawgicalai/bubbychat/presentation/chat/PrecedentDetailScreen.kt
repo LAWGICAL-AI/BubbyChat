@@ -1,12 +1,18 @@
 package com.lawgicalai.bubbychat.presentation.chat
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Card
@@ -20,19 +26,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.lawgicalai.bubbychat.domain.model.Precedent
+import com.lawgicalai.bubbychat.domain.model.PrecedentBody
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyChatTheme
+import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
+import com.lawgicalai.bubbychat.presentation.utils.noRippleClickable
 
 @Composable
 fun PrecedentDetailDialog(
     onDismiss: () -> Unit,
-    precedent: Precedent,
+    precedent: List<PrecedentBody.Precedent>,
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -60,7 +70,7 @@ fun PrecedentDetailDialog(
                         Icon(Icons.Default.KeyboardArrowLeft, "닫기")
                     }
                     Text(
-                        text = precedent.title,
+                        text = "관련 판례",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                     )
@@ -72,7 +82,7 @@ fun PrecedentDetailDialog(
                             .fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    item {
+                    items(precedent) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors =
@@ -86,53 +96,22 @@ fun PrecedentDetailDialog(
                                         .fillMaxWidth()
                                         .padding(16.dp),
                             ) {
-                                InfoRow("법원", precedent.court)
-                                InfoRow("사건번호", precedent.caseNumber)
-                                InfoRow("선고일자", precedent.date)
-                                InfoRow("분류", precedent.category)
+                                with(it) {
+                                    case_name.takeIf { it.isNotBlank() }?.let {
+                                        InfoRow("사건명", it)
+                                    }
+                                    case_number.takeIf { it.isNotBlank() }?.let {
+                                        InfoRow("사건번호", it)
+                                    }
+                                    case_type.takeIf { it.isNotBlank() }?.let {
+                                        InfoRow("분류", it)
+                                    }
+                                    ref_article.takeIf { it.isNotBlank() }?.let {
+                                        InfoRow("상세", it, url)
+                                    }
+                                }
                             }
                         }
-                    }
-
-                    item {
-                        Text(
-                            "관련 법령",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Column {
-                            precedent.relatedLaws.forEach { law ->
-                                Text(
-                                    text = "• $law",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(vertical = 4.dp),
-                                )
-                            }
-                        }
-                    }
-
-                    item {
-                        Text(
-                            "판결 요지",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            text = precedent.summary,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-
-                    item {
-                        Text(
-                            "판결 전문",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            text = precedent.content,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
                     }
                 }
             }
@@ -144,23 +123,43 @@ fun PrecedentDetailDialog(
 private fun InfoRow(
     label: String,
     value: String,
+    url: String? = null,
 ) {
-    Row(
+    val context = LocalContext.current
+    Column(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(vertical = 8.dp),
     ) {
         Text(
-            text = label,
+            text = "📢 " + label,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        if (!url.isNullOrBlank()) {
+            // URL이 있는 경우 클릭 가능한 텍스트로 표시
+            Text(
+                text = value,
+                style =
+                    MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.primary,
+                    ),
+                modifier =
+                    Modifier
+                        .padding(top = 4.dp, bottom = 8.dp)
+                        .noRippleClickable {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
+                        },
+            )
+        } else {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+            )
+        }
     }
 }
 
@@ -171,17 +170,14 @@ fun PrecedentDetailDialogPreview() {
         PrecedentDetailDialog(
             onDismiss = {},
             precedent =
-                Precedent(
-                    id = "prompta",
-                    title = "tota",
-                    court = "idque",
-                    caseNumber = "unum",
-                    date = "conubia",
-                    summary = "oratio",
-                    content = "mus",
-                    category = "nibh",
-                    relatedLaws = listOf(),
-                    keywords = listOf(),
+                listOf(
+                    PrecedentBody.Precedent(
+                        case_name = "Cleo Richmond",
+                        case_number = "prompta",
+                        case_type = "accommodare",
+                        ref_article = "pro",
+                        url = "http://www.bing.com/search?q=dolorem",
+                    ),
                 ),
         )
     }
