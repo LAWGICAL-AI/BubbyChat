@@ -56,7 +56,6 @@ class ChatViewModel
         }
 
         private var dotsJob: Job? = null
-        private var streamJob: Job? = null
 
         private fun cancelDots() {
             dotsJob?.let { job ->
@@ -67,10 +66,13 @@ class ChatViewModel
             dotsJob = null
         }
 
-        fun getResponse(question: String) {
-            getChatResponse(question)
-//            getPrecedentResponse(question)
-        }
+        fun getResponse(question: String) =
+            intent {
+                getChatResponse(question)
+                if (state.personaType == "expert") {
+                    getPrecedentResponse(question)
+                }
+            }
 
         private fun getPrecedentResponse(question: String) =
             intent {
@@ -123,7 +125,6 @@ class ChatViewModel
                         response
                             .onSuccess { data ->
                                 cancelDots()
-                                getPrecedentResponse(question)
                                 reduce {
                                     val updatedMessages = state.messages.toMutableList()
                                     // 인덱스가 유효한지 안전하게 확인합니다
@@ -214,7 +215,10 @@ class ChatViewModel
 
         fun selectPersona(personaType: String) =
             intent {
-                reduce { state.copy(personaType = personaType) }
+                reduce {
+                    Timber.tag(TAG).d("selected: $personaType")
+                    state.copy(personaType = personaType)
+                }
             }
 
         private fun getCurrentUser() =
@@ -243,7 +247,6 @@ class ChatViewModel
         fun clean() =
             intent {
                 cancelDots()
-                streamJob?.cancel()
                 saveMessages()
             }
 

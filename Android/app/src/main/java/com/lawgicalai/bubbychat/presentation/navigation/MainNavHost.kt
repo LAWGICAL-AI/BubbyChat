@@ -84,12 +84,15 @@ fun MainNavHost(myPageViewModel: MyPageViewModel) {
                             ChatScreen(viewModel = chatViewModel)
                         }
                         composable(route = ChatRoute.PERSONA.route) {
-                            PersonaScreen(onPersonaSelected = {
-                                navController.navigate(ChatRoute.CHAT.route) {
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            })
+                            PersonaScreen(
+                                viewModel = chatViewModel,
+                                onPersonaSelected = {
+                                    navController.navigate(ChatRoute.CHAT.route) {
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                            )
                         }
                     }
                 }

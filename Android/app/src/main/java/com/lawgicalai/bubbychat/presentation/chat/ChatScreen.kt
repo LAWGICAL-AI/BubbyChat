@@ -49,7 +49,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -82,10 +81,6 @@ fun ChatScreen(viewModel: ChatViewModel) {
                 Toast.makeText(context, it.massage, Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    LaunchedEffect(Unit) {
-        Timber.tag(TAG).d(state.personaType)
     }
 
     if (state.isShowDialog) {
@@ -366,7 +361,7 @@ fun ChatBubble(
             }
         }
 
-        if (!message.isMine) {
+        if (!message.isMine && personaType == "expert") {
             // 이건 조건 하나 더 달아아 됨 -> 판례데이터를 가져오는 데 성공했다면
             Row(
                 modifier =

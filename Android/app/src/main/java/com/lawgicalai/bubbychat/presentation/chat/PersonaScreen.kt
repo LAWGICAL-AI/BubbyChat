@@ -57,7 +57,7 @@ private const val TAG = "PersonaScreen"
 
 @Composable
 fun PersonaScreen(
-    viewModel: ChatViewModel = hiltViewModel(),
+    viewModel: ChatViewModel,
     onPersonaSelected: () -> Unit,
 ) {
     PersonaScreen(onSavePersona = viewModel::selectPersona, onPersonaSelected = { personaType ->
