@@ -13,12 +13,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.lawgicalai.bubbychat.presentation.chat.ChatScreen
+import com.lawgicalai.bubbychat.presentation.chat.ChatViewModel
 import com.lawgicalai.bubbychat.presentation.chat.PersonaScreen
 import com.lawgicalai.bubbychat.presentation.home.HomeScreen
 import com.lawgicalai.bubbychat.presentation.mypage.MyPageScreen
@@ -38,6 +40,7 @@ fun MainNavHost(myPageViewModel: MyPageViewModel) {
         } ?: MainRoute.HOME
 
     var previousRoute by remember { mutableStateOf<Route?>(null) }
+    val chatViewModel: ChatViewModel = hiltViewModel()
     LaunchedEffect(currentRoute) {
         if (previousRoute == ChatRoute.CHAT) {
             navController.currentBackStackEntry?.savedStateHandle?.set("refresh", true)
@@ -78,15 +81,18 @@ fun MainNavHost(myPageViewModel: MyPageViewModel) {
                         route = "chat",
                     ) {
                         composable(route = ChatRoute.CHAT.route) {
-                            ChatScreen()
+                            ChatScreen(viewModel = chatViewModel)
                         }
                         composable(route = ChatRoute.PERSONA.route) {
-                            PersonaScreen(onPersonaSelected = {
-                                navController.navigate(ChatRoute.CHAT.route) {
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            })
+                            PersonaScreen(
+                                viewModel = chatViewModel,
+                                onPersonaSelected = {
+                                    navController.navigate(ChatRoute.CHAT.route) {
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                            )
                         }
                     }
                 }

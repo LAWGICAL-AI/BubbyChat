@@ -4,11 +4,13 @@ import com.lawgicalai.bubbychat.data.usecase.chat.GetAllChatSessionsUseCaseImpl
 import com.lawgicalai.bubbychat.data.usecase.chat.GetChatResponseStreamUseCaseImpl
 import com.lawgicalai.bubbychat.data.usecase.chat.GetChatResponseUseCaseImpl
 import com.lawgicalai.bubbychat.data.usecase.chat.GetChatSessionUseCaseImpl
+import com.lawgicalai.bubbychat.data.usecase.chat.GetPrecedentResponseUseCaseImpl
 import com.lawgicalai.bubbychat.data.usecase.chat.SaveChatMessagesUseCaseImpl
 import com.lawgicalai.bubbychat.domain.usecase.GetAllChatSessionsUseCase
 import com.lawgicalai.bubbychat.domain.usecase.GetChatResponseStreamUseCase
 import com.lawgicalai.bubbychat.domain.usecase.GetChatResponseUseCase
 import com.lawgicalai.bubbychat.domain.usecase.GetChatSessionUseCase
+import com.lawgicalai.bubbychat.domain.usecase.GetPrecedentResponseUseCase
 import com.lawgicalai.bubbychat.domain.usecase.SaveChatMessagesUseCase
 import dagger.Binds
 import dagger.Module
@@ -32,4 +34,7 @@ abstract class ChatModule {
 
     @Binds
     abstract fun bindGetAllChatSessionsUseCase(uc: GetAllChatSessionsUseCaseImpl): GetAllChatSessionsUseCase
+
+    @Binds
+    abstract fun bindGetPrecedentResponseUseCase(uc: GetPrecedentResponseUseCaseImpl): GetPrecedentResponseUseCase
 }

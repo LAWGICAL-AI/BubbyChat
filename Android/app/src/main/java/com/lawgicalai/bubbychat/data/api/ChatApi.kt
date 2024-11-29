@@ -3,8 +3,8 @@ package com.lawgicalai.bubbychat.data.api
 import com.lawgicalai.bubbychat.data.model.BubbyResponse
 import com.lawgicalai.bubbychat.data.model.ChatResponse
 import com.lawgicalai.bubbychat.data.model.CommonRequest
+import com.lawgicalai.bubbychat.domain.model.PrecedentBody
 import okhttp3.ResponseBody
-import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Headers
 import retrofit2.http.POST
@@ -20,4 +20,9 @@ interface ChatApi {
     suspend fun fetchChatResponse(
         @Body input: CommonRequest,
     ): BubbyResponse<ChatResponse>
+
+    @POST("percedent")
+    suspend fun fetchPrecedent(
+        @Body input: CommonRequest,
+    ): BubbyResponse<PrecedentBody>
 }
