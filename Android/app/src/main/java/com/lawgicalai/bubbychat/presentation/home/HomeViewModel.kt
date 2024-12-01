@@ -2,9 +2,11 @@ package com.lawgicalai.bubbychat.presentation.home
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
+import com.lawgicalai.bubbychat.domain.model.ChatMessage
 import com.lawgicalai.bubbychat.domain.model.ChatSession
 import com.lawgicalai.bubbychat.domain.model.User
 import com.lawgicalai.bubbychat.domain.usecase.GetAllChatSessionsUseCase
+import com.lawgicalai.bubbychat.domain.usecase.GetChatSessionUseCase
 import com.lawgicalai.bubbychat.domain.usecase.GetCurrentUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -23,6 +25,7 @@ class HomeViewModel
     constructor(
         private val getAllChatSessionsUseCase: GetAllChatSessionsUseCase,
         private val getCurrentUserUseCase: GetCurrentUserUseCase,
+        private val getChatSessionUseCase: GetChatSessionUseCase,
     ) : ViewModel(),
         ContainerHost<HomeState, HomeSideEffect> {
         override val container: Container<HomeState, HomeSideEffect> =
@@ -41,6 +44,19 @@ class HomeViewModel
         init {
             getCurrentUser()
         }
+
+        fun getChatSession(sessionId: Int) =
+            intent {
+                state.userInfo.email?.let {
+                    val chatMessages = getChatSessionUseCase(email = it, sessionId = sessionId)
+                    Timber.tag(TAG).d("$chatMessages")
+                    reduce {
+                        state.copy(
+                            selectedSession = chatMessages,
+                        )
+                    }
+                }
+            }
 
         fun getAllSessions() =
             blockingIntent {
@@ -63,12 +79,28 @@ class HomeViewModel
                 }
             }
         }
+
+        fun showSessionDetail() =
+            intent {
+                reduce {
+                    state.copy(isShowDialog = true)
+                }
+            }
+
+        fun hideSessionDetail() =
+            intent {
+                reduce {
+                    state.copy(isShowDialog = false)
+                }
+            }
     }
 
 @Immutable
 data class HomeState(
     val sessions: List<ChatSession> = emptyList(),
     val userInfo: User = User(email = null, displayName = null, profileImage = null),
+    val selectedSession: List<ChatMessage> = emptyList(),
+    val isShowDialog: Boolean = false,
 )
 
 sealed interface HomeSideEffect {
