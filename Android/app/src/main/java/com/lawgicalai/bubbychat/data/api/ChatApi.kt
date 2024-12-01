@@ -21,7 +21,7 @@ interface ChatApi {
         @Body input: CommonRequest,
     ): BubbyResponse<ChatResponse>
 
-    @POST("percedent")
+    @POST("precedent")
     suspend fun fetchPrecedent(
         @Body input: CommonRequest,
     ): BubbyResponse<PrecedentBody>
