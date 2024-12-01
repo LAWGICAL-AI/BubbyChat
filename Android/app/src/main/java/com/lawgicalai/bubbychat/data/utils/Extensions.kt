@@ -17,9 +17,19 @@ suspend fun BufferedSource.processEventStream(onData: suspend (String) -> Unit) 
         while (!source.exhausted()) {
             val line = source.readUtf8LineStrict()
             if (line.startsWith("data:")) {
-                val dataContent = line.removePrefix("data:").trim()
+                var dataContent = line.removePrefix("data:").trim()
                 Timber.tag("Streaming").d("데이터 수신: $dataContent")
-                onData(dataContent)
+
+                dataContent =
+                    dataContent
+                        .replace("[DONE]", "")
+                        .replace("<|endoftext|>", "")
+
+                if (dataContent.contains("[ERROR]")) {
+                    onData("다시 질문해 주세요.")
+                } else {
+                    onData(dataContent)
+                }
             }
         }
     }
