@@ -13,7 +13,7 @@ interface ChatMessageDao {
     suspend fun insertSession(session: ChatSessionEntity): Long
 
     // 특정 이메일의 특정 세션 메시지 가져오기
-    @Query("SELECT * FROM chat_messages WHERE email = :email AND sessionId = :sessionId ORDER BY timestamp DESC")
+    @Query("SELECT * FROM chat_messages WHERE email = :email AND sessionId = :sessionId ORDER BY timestamp")
     suspend fun getMessagesForSession(
         email: String,
         sessionId: Int,

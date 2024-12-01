@@ -73,6 +73,7 @@ fun HomeScreen(
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
     val navController = rememberNavController()
+
     LaunchedEffect(Unit) {
         // navController 추적
         navController.currentBackStackEntryFlow.collect { entry ->
@@ -81,6 +82,13 @@ fun HomeScreen(
                 viewModel.getAllSessions()
             }
         }
+    }
+
+    if (state.isShowDialog) {
+        ChatHistoryDialog(
+            onDismiss = viewModel::hideSessionDetail,
+            chatMessages = state.selectedSession,
+        )
     }
 
     viewModel.collectSideEffect {
@@ -94,7 +102,10 @@ fun HomeScreen(
     HomeScreen(
         userInfo = state.userInfo,
         chatSessions = state.sessions,
-        onSessionClick = {},
+        onSessionClick = { it ->
+            viewModel.getChatSession(it.sessionId)
+            viewModel.showSessionDetail()
+        },
         onStartClick = onStartClick,
     )
 }
