@@ -50,6 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.lawgicalai.bubbychat.R
@@ -62,15 +63,14 @@ import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyDarkerGreen
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGrayDark
 import com.lawgicalai.bubbychat.presentation.ui.theme.BubbyGreen
 import kotlinx.coroutines.delay
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
+//    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: ManualHomeViewModel = hiltViewModel(),
     onStartClick: () -> Unit,
 ) {
-    val state = viewModel.collectAsState().value
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val navController = rememberNavController()
 
@@ -79,22 +79,25 @@ fun HomeScreen(
         navController.currentBackStackEntryFlow.collect { entry ->
             if (entry.savedStateHandle.contains("refresh")) {
                 entry.savedStateHandle.remove<Boolean>("refresh")
-                viewModel.getAllSessions()
+                viewModel.processIntent(HomeIntent.GetAllSessions)
             }
         }
     }
 
     if (state.isShowDialog) {
         ChatHistoryDialog(
-            onDismiss = viewModel::hideSessionDetail,
+            onDismiss = { viewModel.processIntent(HomeIntent.HideSessionDetail) },
             chatMessages = state.selectedSession,
         )
     }
 
-    viewModel.collectSideEffect {
-        when (it) {
-            is HomeSideEffect.Toast -> {
-                Toast.makeText(context, it.massage, Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) { // 딱 한번만 초기화되면 되기 때문에 Unit으로
+//    LaunchedEffect(viewModel.sideEffect) {
+        viewModel.sideEffect.collect { effect ->
+            when (effect) {
+                is ManualHomeSideEffect.Toast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -103,8 +106,8 @@ fun HomeScreen(
         userInfo = state.userInfo,
         chatSessions = state.sessions,
         onSessionClick = { it ->
-            viewModel.getChatSession(it.sessionId)
-            viewModel.showSessionDetail()
+            viewModel.processIntent(HomeIntent.GetChatSession(it.sessionId))
+            viewModel.processIntent(HomeIntent.ShowSessionDetail)
         },
         onStartClick = onStartClick,
     )
@@ -221,11 +224,16 @@ private fun HomeScreen(
                         Image(
                             painter = rememberAsyncImagePainter(model = userInfo.profileImage),
                             contentDescription = "profileImage",
-                            modifier = Modifier.size(32.dp).padding(start = 4.dp),
+                            modifier = Modifier
+                                .size(32.dp)
+                                .padding(start = 4.dp),
                         )
                     }
 
-                    Text(text = "버비와 법률관련 대화를 시작해보세요", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = "버비와 법률관련 대화를 시작해보세요",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
                 CarouselText()
                 Button(

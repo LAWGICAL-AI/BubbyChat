@@ -1,6 +1,5 @@
 package com.lawgicalai.bubbychat.data.usecase.chat
 
-import com.lawgicalai.bubbychat.BuildConfig
 import com.lawgicalai.bubbychat.data.model.CommonRequest
 import com.lawgicalai.bubbychat.data.utils.processEventStream
 import com.lawgicalai.bubbychat.domain.usecase.GetChatResponseStreamUseCase
@@ -28,7 +27,7 @@ class GetChatResponseStreamUseCaseImpl
                 val request =
                     Request
                         .Builder()
-                        .url(BuildConfig.BASE_URL + "stream")
+                        .url("BuildConfig.BASE_URL" + "stream")
                         .header("Accept", "text/event-stream")
                         .post(CommonRequest(input).toRequestBody())
                         .build()

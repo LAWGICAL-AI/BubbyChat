@@ -2,7 +2,6 @@ package com.lawgicalai.bubbychat.data.di
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.lawgicalai.bubbychat.BuildConfig
 import com.lawgicalai.bubbychat.data.di.utils.isJsonArray
 import com.lawgicalai.bubbychat.data.di.utils.isJsonObject
 import com.lawgicalai.bubbychat.data.utils.JsonLogger
@@ -36,7 +35,7 @@ object NetworkModule {
             .Builder()
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl(BuildConfig.BASE_URL)
+            .baseUrl("https://medium.com/@kimmandoo/")
             .client(okHttpClient)
             .build()
 
